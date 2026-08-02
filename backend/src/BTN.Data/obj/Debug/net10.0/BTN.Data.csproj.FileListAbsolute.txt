@@ -1,0 +1,17 @@
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.csproj.AssemblyReference.cache
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.AssemblyInfoInputs.cache
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.AssemblyInfo.cs
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.csproj.CoreCompileInputs.cache
+D:\btn\backend\src\BTN.Data\bin\Debug\net10.0\BTN.Data.deps.json
+D:\btn\backend\src\BTN.Data\bin\Debug\net10.0\BTN.Data.runtimeconfig.json
+D:\btn\backend\src\BTN.Data\bin\Debug\net10.0\BTN.Data.dll
+D:\btn\backend\src\BTN.Data\bin\Debug\net10.0\BTN.Data.pdb
+D:\btn\backend\src\BTN.Data\bin\Debug\net10.0\BTN.Core.dll
+D:\btn\backend\src\BTN.Data\bin\Debug\net10.0\BTN.Core.pdb
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.csproj.Up2Date
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.dll
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\refint\BTN.Data.dll
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.pdb
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\BTN.Data.genruntimeconfig.cache
+D:\btn\backend\src\BTN.Data\obj\Debug\net10.0\ref\BTN.Data.dll

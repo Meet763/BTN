@@ -1,0 +1,17 @@
+d:\btn\backend\src\BTN.Infrastructure\bin\Debug\net10.0\BTN.Infrastructure.deps.json
+d:\btn\backend\src\BTN.Infrastructure\bin\Debug\net10.0\BTN.Infrastructure.runtimeconfig.json
+d:\btn\backend\src\BTN.Infrastructure\bin\Debug\net10.0\BTN.Infrastructure.dll
+d:\btn\backend\src\BTN.Infrastructure\bin\Debug\net10.0\BTN.Infrastructure.pdb
+d:\btn\backend\src\BTN.Infrastructure\bin\Debug\net10.0\BTN.Core.dll
+d:\btn\backend\src\BTN.Infrastructure\bin\Debug\net10.0\BTN.Core.pdb
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.csproj.AssemblyReference.cache
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.AssemblyInfoInputs.cache
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.AssemblyInfo.cs
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.csproj.CoreCompileInputs.cache
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infr.273E11CA.Up2Date
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.dll
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\refint\BTN.Infrastructure.dll
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.pdb
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\BTN.Infrastructure.genruntimeconfig.cache
+d:\btn\backend\src\BTN.Infrastructure\obj\Debug\net10.0\ref\BTN.Infrastructure.dll

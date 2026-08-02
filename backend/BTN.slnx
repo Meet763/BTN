@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BTN.API/BTN.API.csproj" />
+    <Project Path="src/BTN.Business/BTN.Business.csproj" />
+    <Project Path="src/BTN.Core/BTN.Core.csproj" />
+    <Project Path="src/BTN.Data/BTN.Data.csproj" />
+    <Project Path="src/BTN.Infrastructure/BTN.Infrastructure.csproj" />
+    <Project Path="src/BTN.Services/BTN.Services.csproj" />
+  </Folder>
+</Solution>

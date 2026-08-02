@@ -1,0 +1,17 @@
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Business.csproj.AssemblyReference.cache
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Business.GeneratedMSBuildEditorConfig.editorconfig
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Business.AssemblyInfoInputs.cache
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Business.AssemblyInfo.cs
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Business.csproj.CoreCompileInputs.cache
+D:\btn\backend\src\BTN.Business\bin\Debug\net10.0\BTN.Business.deps.json
+D:\btn\backend\src\BTN.Business\bin\Debug\net10.0\BTN.Business.dll
+D:\btn\backend\src\BTN.Business\bin\Debug\net10.0\BTN.Business.pdb
+D:\btn\backend\src\BTN.Business\bin\Debug\net10.0\BTN.Core.dll
+D:\btn\backend\src\BTN.Business\bin\Debug\net10.0\BTN.Data.dll
+D:\btn\backend\src\BTN.Business\bin\Debug\net10.0\BTN.Core.pdb
+D:\btn\backend\src\BTN.Business\bin\Debug\net10.0\BTN.Data.pdb
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Busi.BA25E9E5.Up2Date
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Business.dll
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\refint\BTN.Business.dll
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\BTN.Business.pdb
+D:\btn\backend\src\BTN.Business\obj\Debug\net10.0\ref\BTN.Business.dll
