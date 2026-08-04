@@ -9,13 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BTN.Business.Purchase;
 
-public interface IPurchaseManager
-{
-    Task<PurchaseResponse> PurchaseLeadAsync(Guid customerId, PurchaseLeadRequest request);
-    Task<PagedResult<PurchaseResponse>> GetPurchasesAsync(Guid customerId, int page, int pageSize);
-    Task<PurchaseResponse?> GetPurchaseAsync(Guid customerId, Guid purchaseId);
-}
-
 public class PurchaseManager : IPurchaseManager
 {
     private readonly ICustomerRepository _customerRepository;

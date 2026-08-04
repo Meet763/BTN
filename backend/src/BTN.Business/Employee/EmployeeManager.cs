@@ -9,18 +9,6 @@ using UserEntity = BTN.Data.Entities.User;
 
 namespace BTN.Business.Employee;
 
-public interface IEmployeeManager
-{
-    Task<PagedResult<EmployeeResponse>> GetEmployeesAsync(int page, int pageSize, string? search);
-    Task<EmployeeResponse?> GetByIdAsync(Guid id);
-    Task<EmployeeResponse> CreateAsync(CreateEmployeeRequest request, Guid adminId);
-    Task<EmployeeResponse?> UpdateAsync(Guid id, UpdateEmployeeRequest request);
-    Task<bool> SetStatusAsync(Guid id, bool isActive);
-    Task<EmployeePerformanceResponse?> GetPerformanceAsync(Guid id);
-    Task<EmployeeResponse?> GetByUserIdAsync(Guid userId);
-    Task<List<EmployeeWorkHistoryItem>> GetWorkHistoryAsync(Guid employeeId);
-}
-
 public class EmployeeManager : IEmployeeManager
 {
     private readonly IEmployeeRepository _employeeRepository;

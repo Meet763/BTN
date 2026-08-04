@@ -8,13 +8,6 @@ using UserEntity = BTN.Data.Entities.User;
 
 namespace BTN.Business.Authentication;
 
-public interface IAuthenticationManager
-{
-    Task<LoginResponse?> LoginAsync(LoginRequest request, string? ipAddress);
-    Task<LoginResponse?> RefreshAsync(string refreshToken);
-    Task<bool> LogoutAsync(string refreshToken, Guid userId);
-}
-
 public class AuthenticationManager : IAuthenticationManager
 {
     private readonly IAuthenticationRepository _authRepository;

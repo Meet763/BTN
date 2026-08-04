@@ -9,12 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BTN.Business.Authentication;
 
-public interface ITokenGenerator
-{
-    string GenerateAccessToken(UserEntity user);
-    RefreshToken GenerateRefreshToken(Guid userId);
-}
-
 public class TokenGenerator : ITokenGenerator
 {
     private readonly IConfiguration _configuration;

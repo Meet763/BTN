@@ -10,16 +10,6 @@ using UserEntity = BTN.Data.Entities.User;
 
 namespace BTN.Business.User;
 
-public interface IUserManager
-{
-    Task<PagedResult<UserResponse>> GetUsersAsync(int page, int pageSize, string? search, string? role, string? status);
-    Task<UserResponse?> GetUserByIdAsync(Guid id);
-    Task<UserResponse> CreateUserAsync(CreateUserRequest request, Guid adminId);
-    Task<UserResponse?> UpdateUserAsync(Guid id, UpdateUserRequest request, Guid adminId);
-    Task<bool> DeactivateUserAsync(Guid id, Guid adminId);
-    Task<List<RoleDto>> GetRolesAsync();
-}
-
 public class UserManager : IUserManager
 {
     private readonly IUserRepository _userRepository;
