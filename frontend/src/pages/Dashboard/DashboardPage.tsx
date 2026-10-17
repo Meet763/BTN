@@ -87,6 +87,8 @@ export const DashboardPage: React.FC = () => {
       case 'Website': return '#13c2c2';
       case 'WhatsApp': return '#52c41a';
       case 'Referral': return '#722ed1';
+      case 'Instagram': return '#c13584';
+      case 'Twitter': return '#1d9bf0';
       default: return '#fa8c16';
     }
   };

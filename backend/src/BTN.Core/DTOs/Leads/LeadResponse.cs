@@ -9,6 +9,7 @@ namespace BTN.Core.DTOs.Leads
         public string CustomerName { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string? Email { get; set; }
+        public string? Address { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
         public string? Pincode { get; set; }
@@ -20,6 +21,11 @@ namespace BTN.Core.DTOs.Leads
         public string SaleStatus { get; set; } = string.Empty;
         public Guid? AssignedEmployeeId { get; set; }
         public string? AssignedEmployeeName { get; set; }
+        public Guid? OrgUnitId { get; set; }
+        public string? OrgUnitName { get; set; }
+        public string? OrgUnitCode { get; set; }
+        public Guid? AssignedHeadEmployeeId { get; set; }
+        public string? AssignedHeadEmployeeName { get; set; }
         public string? InquiryType { get; set; }
         public string? InquiryDetails { get; set; }
         public string? CustomerRequirements { get; set; }

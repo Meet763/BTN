@@ -7,6 +7,7 @@ using BTN.Business.Employee;
 using BTN.Business.Lead;
 using BTN.Business.LeadAssignment;
 using BTN.Business.LeadVerification;
+using BTN.Business.Org;
 using BTN.Business.Purchase;
 using BTN.Business.User;
 using BTN.Business.Wallet;
@@ -16,6 +17,7 @@ using BTN.Core.DTOs.Customer;
 using BTN.Core.DTOs.Employee;
 using BTN.Core.DTOs.LeadAssignment;
 using BTN.Core.DTOs.Leads;
+using BTN.Core.DTOs.Org;
 using BTN.Core.DTOs.Purchase;
 using BTN.Core.DTOs.Wallet;
 using BTN.Core.Enums;
@@ -285,20 +287,50 @@ public class LeadsController : ControllerBase
         return Ok(new { success = true, data = await _leadVerificationManager.GetMethodsAsync() });
     }
 
-    [Authorize(Roles = "PlatformOwner")]
+    [Authorize(Roles = "PlatformOwner,Employee,VerificationAgent")]
     [HttpPost("{id}/assign")]
     public async Task<IActionResult> Assign(Guid id, [FromBody] AssignLeadRequest request)
     {
-        var result = await _leadAssignmentManager.AssignAsync(id, request, GetUserId());
-        return Ok(new { success = true, data = result });
+        try
+        {
+            var result = await _leadAssignmentManager.AssignAsync(id, request, GetUserId(), User);
+            return Ok(new { success = true, data = result });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { success = false, error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, error = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { success = false, error = ex.Message });
+        }
     }
 
-    [Authorize(Roles = "PlatformOwner")]
+    [Authorize(Roles = "PlatformOwner,Employee,VerificationAgent")]
     [HttpPost("{id}/reassign")]
     public async Task<IActionResult> Reassign(Guid id, [FromBody] AssignLeadRequest request)
     {
-        var result = await _leadAssignmentManager.ReassignAsync(id, request, GetUserId());
-        return Ok(new { success = true, data = result });
+        try
+        {
+            var result = await _leadAssignmentManager.ReassignAsync(id, request, GetUserId(), User);
+            return Ok(new { success = true, data = result });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { success = false, error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, error = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { success = false, error = ex.Message });
+        }
     }
 
     [HttpGet("{id}/assignment-history")]
@@ -765,4 +797,151 @@ public class WebhooksController : ControllerBase
         await _walletManager.ProcessWebhookAsync(orderId, orderId);
         return Ok();
     }
+}
+
+[ApiController]
+[Route("api/org-units")]
+public class OrgUnitsController : ControllerBase
+{
+    private readonly IOrgUnitManager _orgUnitManager;
+
+    public OrgUnitsController(IOrgUnitManager orgUnitManager) => _orgUnitManager = orgUnitManager;
+
+    [Authorize(Roles = "PlatformOwner")]
+    [HttpGet]
+    public async Task<IActionResult> GetAll() =>
+        Ok(new { success = true, data = await _orgUnitManager.GetAllAsync() });
+
+    [Authorize(Roles = "PlatformOwner")]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var unit = await _orgUnitManager.GetByIdAsync(id);
+        return unit == null ? NotFound() : Ok(new { success = true, data = unit });
+    }
+
+    [Authorize(Roles = "PlatformOwner")]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateOrgUnitRequest request)
+    {
+        try
+        {
+            return Ok(new { success = true, data = await _orgUnitManager.CreateAsync(request, GetUserId()) });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, error = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { success = false, error = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = "PlatformOwner")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateOrgUnitRequest request)
+    {
+        try
+        {
+            var unit = await _orgUnitManager.UpdateAsync(id, request, GetUserId());
+            return unit == null ? NotFound() : Ok(new { success = true, data = unit });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, error = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { success = false, error = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = "PlatformOwner")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        try
+        {
+            var ok = await _orgUnitManager.DeleteAsync(id, GetUserId());
+            return ok ? Ok(new { success = true }) : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, error = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = "PlatformOwner,Employee,VerificationAgent")]
+    [HttpGet("{id}/summary")]
+    public async Task<IActionResult> Summary(Guid id)
+    {
+        try
+        {
+            var summary = await _orgUnitManager.GetSummaryAsync(id, GetUserId(), User);
+            return summary == null ? NotFound() : Ok(new { success = true, data = summary });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { success = false, error = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = "PlatformOwner,Employee,VerificationAgent")]
+    [HttpGet("{id}/members")]
+    public async Task<IActionResult> Members(Guid id)
+    {
+        try
+        {
+            return Ok(new { success = true, data = await _orgUnitManager.GetMembersAsync(id, GetUserId(), User) });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { success = false, error = ex.Message });
+        }
+    }
+
+    private Guid GetUserId() => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+}
+
+[Authorize(Roles = "PlatformOwner,Employee,VerificationAgent")]
+[ApiController]
+[Route("api/hierarchy")]
+public class HierarchyController : ControllerBase
+{
+    private readonly IHierarchyManager _hierarchyManager;
+
+    public HierarchyController(IHierarchyManager hierarchyManager) => _hierarchyManager = hierarchyManager;
+
+    [Authorize(Roles = "PlatformOwner")]
+    [HttpGet("tree")]
+    public async Task<IActionResult> Tree() =>
+        Ok(new { success = true, data = await _hierarchyManager.GetFullTreeAsync() });
+
+    [HttpGet("under-me")]
+    public async Task<IActionResult> UnderMe() =>
+        Ok(new { success = true, data = await _hierarchyManager.GetUnderMeAsync(GetUserId(), User) });
+
+    [HttpGet("under/{employeeId}")]
+    public async Task<IActionResult> UnderEmployee(Guid employeeId)
+    {
+        try
+        {
+            return Ok(new
+            {
+                success = true,
+                data = await _hierarchyManager.GetUnderEmployeeAsync(GetUserId(), employeeId, User)
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { success = false, error = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { success = false, error = ex.Message });
+        }
+    }
+
+    private Guid GetUserId() => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 }

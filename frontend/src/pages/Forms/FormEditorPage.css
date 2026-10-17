@@ -1,0 +1,100 @@
+.field-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field-type-card {
+  min-width: 0;
+  min-height: 92px;
+  margin: 0;
+  padding: 12px 14px;
+  text-align: left;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.field-type-card strong,
+.field-type-card span {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.field-type-card strong {
+  margin-bottom: 4px;
+}
+
+.field-type-card span {
+  opacity: 0.72;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.field-type-card:hover {
+  border-color: var(--ant-color-primary, #1677ff);
+}
+
+.field-order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-order-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  background: transparent;
+  color: inherit;
+  cursor: grab;
+  text-align: left;
+}
+
+.field-order-row.is-selected {
+  border-color: var(--ant-color-primary, #1677ff);
+  background: color-mix(in srgb, var(--ant-color-primary, #1677ff) 16%, transparent);
+}
+
+.field-order-row.is-dragging {
+  opacity: 0.45;
+}
+
+.field-order-handle {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  opacity: 0.55;
+}
+
+.field-order-copy {
+  min-width: 0;
+}
+
+.field-order-copy strong,
+.field-order-copy span {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.field-order-copy span {
+  opacity: 0.72;
+  color: inherit;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .field-type-grid {
+    grid-template-columns: 1fr;
+  }
+}

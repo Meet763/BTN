@@ -108,7 +108,10 @@ public class AuthenticationManager : IAuthenticationManager
                 Id = user.Id,
                 FullName = user.FullName,
                 Email = user.Email,
-                Role = user.Role?.Name ?? string.Empty
+                Role = user.Role?.Name ?? string.Empty,
+                EmployeeId = user.Employee?.Id,
+                OrgUnitId = user.Employee?.OrgUnitId,
+                JobTitle = user.Employee?.JobTitle.ToString()
             }
         };
 }

@@ -17,6 +17,8 @@ public class LeadRepository : ILeadRepository
         _context.Leads
             .Include(l => l.VerifiedByUser)
             .Include(l => l.AssignedEmployee).ThenInclude(e => e!.User)
+            .Include(l => l.OrgUnit)
+            .Include(l => l.AssignedHeadEmployee).ThenInclude(e => e!.User)
             .Include(l => l.Verifications).ThenInclude(v => v.VerifiedByUser)
             .Include(l => l.Assignments).ThenInclude(a => a.Employee).ThenInclude(e => e!.User)
             .Include(l => l.Assignments).ThenInclude(a => a.AssignedByUser)

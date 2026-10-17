@@ -19,6 +19,7 @@ public class BtnDbContext : DbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserEntity> Users => Set<UserEntity>();
     public DbSet<EmployeeEntity> Employees => Set<EmployeeEntity>();
+    public DbSet<Entities.OrgUnit> OrgUnits => Set<Entities.OrgUnit>();
     public DbSet<CustomerEntity> Customers => Set<CustomerEntity>();
     public DbSet<LeadEntity> Leads => Set<LeadEntity>();
     public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
@@ -39,6 +40,11 @@ public class BtnDbContext : DbContext
     public DbSet<BillingPayment> BillingPayments => Set<BillingPayment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<CampaignSubmission> CampaignSubmissions => Set<CampaignSubmission>();
+    public DbSet<CampaignFormAppearance> CampaignFormAppearances => Set<CampaignFormAppearance>();
+    public DbSet<ManagedForm> ManagedForms => Set<ManagedForm>();
+    public DbSet<ManagedFormField> ManagedFormFields => Set<ManagedFormField>();
+    public DbSet<ManagedFormSubmission> ManagedFormSubmissions => Set<ManagedFormSubmission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,7 +61,19 @@ public class BtnDbContext : DbContext
 
         modelBuilder.Entity<Role>().HasIndex(r => r.Name).IsUnique();
 
-        modelBuilder.Entity<EmployeeEntity>().HasIndex(e => e.UserId).IsUnique();
+        modelBuilder.Entity<EmployeeEntity>(entity =>
+        {
+            entity.HasIndex(e => e.UserId).IsUnique();
+            entity.HasOne(e => e.OrgUnit).WithMany(o => o.Members).HasForeignKey(e => e.OrgUnitId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(e => e.ReportsToEmployee).WithMany(e => e.DirectReports).HasForeignKey(e => e.ReportsToEmployeeId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Entities.OrgUnit>(entity =>
+        {
+            entity.HasIndex(o => o.Code).IsUnique();
+            entity.HasOne(o => o.ParentOrgUnit).WithMany(o => o.Children).HasForeignKey(o => o.ParentOrgUnitId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(o => o.HeadEmployee).WithMany(e => e.HeadedOrgUnits).HasForeignKey(o => o.HeadEmployeeId).OnDelete(DeleteBehavior.SetNull);
+        });
 
         modelBuilder.Entity<CustomerEntity>().HasIndex(c => c.UserId).IsUnique();
 
@@ -70,6 +88,8 @@ public class BtnDbContext : DbContext
             entity.HasOne(l => l.VerifiedByUser).WithMany(u => u.VerifiedLeads).HasForeignKey(l => l.VerifiedBy).OnDelete(DeleteBehavior.SetNull);
             entity.HasOne(l => l.DuplicateOfLead).WithMany().HasForeignKey(l => l.DuplicateOfLeadId).OnDelete(DeleteBehavior.SetNull);
             entity.HasOne(l => l.AssignedEmployee).WithMany(e => e.AssignedLeads).HasForeignKey(l => l.AssignedEmployeeId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(l => l.OrgUnit).WithMany(o => o.Leads).HasForeignKey(l => l.OrgUnitId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(l => l.AssignedHeadEmployee).WithMany().HasForeignKey(l => l.AssignedHeadEmployeeId).OnDelete(DeleteBehavior.SetNull);
             entity.HasOne(l => l.Purchase).WithOne(p => p.Lead).HasForeignKey<PurchaseEntity>(p => p.LeadId);
         });
 
@@ -119,6 +139,34 @@ public class BtnDbContext : DbContext
             entity.Property(al => al.OldValues).HasColumnType("jsonb");
             entity.Property(al => al.NewValues).HasColumnType("jsonb");
             entity.HasOne(al => al.User).WithMany(u => u.AuditLogs).HasForeignKey(al => al.UserId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<CampaignSubmission>(entity =>
+        {
+            entity.HasIndex(c => c.Platform);
+            entity.HasIndex(c => c.CreatedAt);
+            entity.HasIndex(c => c.Phone);
+            entity.HasIndex(c => c.GiftStatus);
+            entity.HasIndex(c => c.JobRole);
+        });
+
+        modelBuilder.Entity<ManagedForm>(entity =>
+        {
+            entity.HasIndex(f => f.Slug).IsUnique();
+            entity.HasMany(f => f.Fields).WithOne(f => f.Form).HasForeignKey(f => f.FormId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(f => f.Submissions).WithOne(s => s.Form).HasForeignKey(s => s.FormId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ManagedFormField>(entity =>
+        {
+            entity.HasIndex(f => new { f.FormId, f.FieldKey }).IsUnique();
+            entity.HasIndex(f => new { f.FormId, f.SortOrder });
+        });
+
+        modelBuilder.Entity<ManagedFormSubmission>(entity =>
+        {
+            entity.Property(s => s.AnswersJson).HasColumnType("jsonb");
+            entity.HasIndex(s => s.CreatedAt);
         });
 
         foreach (var entity in modelBuilder.Model.GetEntityTypes())

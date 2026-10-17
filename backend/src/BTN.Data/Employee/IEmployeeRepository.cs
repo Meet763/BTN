@@ -12,6 +12,7 @@ public interface IEmployeeRepository
     void Add(Entities.Employee employee);
     Task<List<Entities.Lead>> GetAssignedLeadsAsync(Guid employeeId, int page, int pageSize);
     Task<int> CountAssignedLeadsAsync(Guid employeeId);
+    Task<int> CountOpenLeadsAsync(Guid employeeId);
     Task<int> CountVerificationsAsync(Guid employeeId, DateTime? since = null);
     Task<List<LeadAssignment>> GetAssignmentHistoryAsync(Guid employeeId, int take = 50);
     Task<List<LeadVerification>> GetVerificationHistoryAsync(Guid employeeId, int take = 50);

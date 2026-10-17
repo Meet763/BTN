@@ -14,7 +14,10 @@ public class EmployeeRepository : IEmployeeRepository
     }
 
     public IQueryable<Entities.Employee> Query() =>
-        _context.Employees.Include(e => e.User).ThenInclude(u => u!.Role);
+        _context.Employees
+            .Include(e => e.User)!.ThenInclude(u => u!.Role)
+            .Include(e => e.OrgUnit)
+            .Include(e => e.ReportsToEmployee)!.ThenInclude(r => r!.User);
 
     public Task<Entities.Employee?> GetByIdAsync(Guid id) =>
         Query().FirstOrDefaultAsync(e => e.Id == id);
@@ -34,6 +37,12 @@ public class EmployeeRepository : IEmployeeRepository
 
     public Task<int> CountAssignedLeadsAsync(Guid employeeId) =>
         _context.Leads.CountAsync(l => l.AssignedEmployeeId == employeeId);
+
+    public Task<int> CountOpenLeadsAsync(Guid employeeId) =>
+        _context.Leads.CountAsync(l =>
+            l.AssignedEmployeeId == employeeId &&
+            l.VerificationStatus != Core.Enums.LeadStatus.Verified &&
+            l.VerificationStatus != Core.Enums.LeadStatus.Rejected);
 
     public Task<int> CountVerificationsAsync(Guid employeeId, DateTime? since = null)
     {

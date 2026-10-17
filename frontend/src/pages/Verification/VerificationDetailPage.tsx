@@ -68,6 +68,7 @@ interface LeadDetail {
   customerName: string;
   phone: string;
   email?: string;
+  address?: string;
   city?: string;
   state?: string;
   pincode?: string;
@@ -270,6 +271,7 @@ export const VerificationDetailPage: React.FC = () => {
               </Descriptions.Item>
               
               <Descriptions.Item label="Email Address">{lead.email || '-'}</Descriptions.Item>
+              <Descriptions.Item label="Gift / shipping address" span={2}>{lead.address || '-'}</Descriptions.Item>
               <Descriptions.Item label="City">{lead.city || '-'}</Descriptions.Item>
               <Descriptions.Item label="State">{lead.state || '-'}</Descriptions.Item>
               <Descriptions.Item label="Pincode">{lead.pincode || '-'}</Descriptions.Item>

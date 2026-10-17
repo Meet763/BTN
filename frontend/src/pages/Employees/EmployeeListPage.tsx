@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {
   Button,
   Card,
+  Checkbox,
   Descriptions,
   Form,
   Input,
   Modal,
+  Select,
   Space,
   Switch,
   Table,
@@ -21,7 +23,19 @@ interface Employee {
   phone?: string;
   employeeCode?: string;
   department?: string;
+  orgUnitId?: string;
+  orgUnitName?: string;
+  orgUnitCode?: string;
+  reportsToEmployeeId?: string;
+  reportsToName?: string;
+  jobTitle?: string;
   isActive: boolean;
+}
+
+interface OrgUnitOption {
+  id: string;
+  name: string;
+  code: string;
 }
 
 interface Performance {
@@ -38,8 +52,11 @@ interface WorkItem {
   at: string;
 }
 
+const JOB_TITLES = ['Employee', 'HR', 'Manager', 'Head', 'SubAdmin'];
+
 export const EmployeeListPage: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [orgUnits, setOrgUnits] = useState<OrgUnitOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -55,8 +72,12 @@ export const EmployeeListPage: React.FC = () => {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get('/api/employees', { params: { pageSize: 100 } });
-      setEmployees(res.data.data.items);
+      const [empRes, orgRes] = await Promise.all([
+        axiosInstance.get('/api/employees', { params: { pageSize: 100 } }),
+        axiosInstance.get('/api/org-units'),
+      ]);
+      setEmployees(empRes.data.data.items);
+      setOrgUnits(orgRes.data.data || []);
     } finally {
       setLoading(false);
     }
@@ -83,7 +104,10 @@ export const EmployeeListPage: React.FC = () => {
 
   const openEdit = (row: Employee) => {
     setEditing(row);
-    editForm.setFieldsValue(row);
+    editForm.setFieldsValue({
+      ...row,
+      setAsOrgUnitHead: false,
+    });
     setEditOpen(true);
   };
 
@@ -122,6 +146,29 @@ export const EmployeeListPage: React.FC = () => {
     setHistoryOpen(true);
   };
 
+  const orgOptions = orgUnits.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }));
+  const reportOptions = employees.map((e) => ({ value: e.id, label: e.fullName }));
+
+  const orgFields = (
+    <>
+      <Form.Item name="orgUnitId" label="Product org unit">
+        <Select allowClear options={orgOptions} showSearch optionFilterProp="label" />
+      </Form.Item>
+      <Form.Item name="jobTitle" label="Job title" initialValue="Employee">
+        <Select options={JOB_TITLES.map((t) => ({ value: t, label: t }))} />
+      </Form.Item>
+      <Form.Item name="reportsToEmployeeId" label="Reports to">
+        <Select allowClear options={reportOptions} showSearch optionFilterProp="label" />
+      </Form.Item>
+      <Form.Item name="setAsOrgUnitHead" valuePropName="checked">
+        <Checkbox>Set as Head of selected org unit</Checkbox>
+      </Form.Item>
+      <Form.Item name="department" label="Department (legacy)">
+        <Input />
+      </Form.Item>
+    </>
+  );
+
   return (
     <Card
       title="Employee Management"
@@ -139,8 +186,12 @@ export const EmployeeListPage: React.FC = () => {
         columns={[
           { title: 'Name', dataIndex: 'fullName' },
           { title: 'Email', dataIndex: 'email' },
-          { title: 'Code', dataIndex: 'employeeCode' },
-          { title: 'Department', dataIndex: 'department' },
+          { title: 'Job title', dataIndex: 'jobTitle', render: (t) => (t ? <Tag>{t}</Tag> : '—') },
+          {
+            title: 'Product',
+            render: (_, r) => (r.orgUnitCode ? <Tag color="blue">{r.orgUnitCode}</Tag> : r.department || '—'),
+          },
+          { title: 'Reports to', dataIndex: 'reportsToName', render: (v) => v || '—' },
           {
             title: 'Status',
             render: (_, r) => (
@@ -170,7 +221,7 @@ export const EmployeeListPage: React.FC = () => {
       />
 
       <Modal title="New Employee" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void onCreate()} okText="Create">
-        <Form form={createForm} layout="vertical">
+        <Form form={createForm} layout="vertical" initialValues={{ jobTitle: 'Employee', setAsOrgUnitHead: false }}>
           <Form.Item name="fullName" label="Full Name" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
@@ -186,9 +237,7 @@ export const EmployeeListPage: React.FC = () => {
           <Form.Item name="employeeCode" label="Employee code">
             <Input />
           </Form.Item>
-          <Form.Item name="department" label="Department">
-            <Input />
-          </Form.Item>
+          {orgFields}
         </Form>
       </Modal>
 
@@ -203,9 +252,7 @@ export const EmployeeListPage: React.FC = () => {
           <Form.Item name="employeeCode" label="Employee code">
             <Input />
           </Form.Item>
-          <Form.Item name="department" label="Department">
-            <Input />
-          </Form.Item>
+          {orgFields}
           <Form.Item name="isActive" label="Active" valuePropName="checked">
             <Switch />
           </Form.Item>

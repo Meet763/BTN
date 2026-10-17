@@ -1,0 +1,74 @@
+.gift-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.gift-theme-card {
+  text-align: left;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 132px;
+}
+
+.gift-theme-card.is-selected {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
+}
+
+.gift-theme-card strong {
+  font-size: 14px;
+}
+
+.gift-theme-card span:last-child {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.4;
+}
+
+.gift-theme-swatches {
+  display: flex;
+  height: 28px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.gift-theme-swatches span {
+  flex: 1;
+}
+
+.gift-theme-custom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0 0 16px;
+}
+
+.gift-theme-custom label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.gift-theme-custom input[type='color'] {
+  width: 48px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.gift-theme-preview {
+  margin-top: 4px;
+}

@@ -29,15 +29,26 @@ public class TokenGenerator : ITokenGenerator
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Name, user.FullName),
-            new Claim(ClaimTypes.Role, user.Role?.Name ?? string.Empty),
-            new Claim("role", user.Role?.Name ?? string.Empty)
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.Name, user.FullName),
+            new(ClaimTypes.Role, user.Role?.Name ?? string.Empty),
+            new("role", user.Role?.Name ?? string.Empty)
         };
+
+        if (user.Employee != null)
+        {
+            claims.Add(new Claim("employee_id", user.Employee.Id.ToString()));
+            if (user.Employee.OrgUnitId.HasValue)
+            {
+                claims.Add(new Claim("org_unit_id", user.Employee.OrgUnitId.Value.ToString()));
+            }
+
+            claims.Add(new Claim("job_title", user.Employee.JobTitle.ToString()));
+        }
 
         var token = new JwtSecurityToken(
             issuer: issuer,

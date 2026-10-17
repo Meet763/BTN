@@ -43,7 +43,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        var origins = builder.Configuration["Cors:AllowedOrigins"]
+            ?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            ?? Array.Empty<string>();
+
+        if (origins.Length == 0)
+        {
+            origins = ["http://localhost:5173", "http://localhost:3000", "http://localhost:8080"];
+        }
+
+        policy.WithOrigins(origins)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -89,10 +98,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseCors("AllowReact");
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthentication();
 app.UseMiddleware<AuditLogMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { ok = true }));
 app.Run();

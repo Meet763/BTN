@@ -15,13 +15,21 @@ public class AuthenticationRepository : IAuthenticationRepository
     }
 
     public Task<UserEntity?> GetUserByEmailAsync(string email) =>
-        _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+        _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Employee)
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
 
     public Task<UserEntity?> GetUserWithRoleAsync(Guid id) =>
-        _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
+        _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Employee)
+            .FirstOrDefaultAsync(u => u.Id == id);
 
     public Task<RefreshToken?> GetRefreshTokenAsync(string token) =>
-        _context.RefreshTokens.Include(t => t.User).ThenInclude(u => u!.Role)
+        _context.RefreshTokens
+            .Include(t => t.User)!.ThenInclude(u => u!.Role)
+            .Include(t => t.User)!.ThenInclude(u => u!.Employee)
             .FirstOrDefaultAsync(t => t.Token == token);
 
     public void AddRefreshToken(RefreshToken token) => _context.RefreshTokens.Add(token);

@@ -7,6 +7,10 @@ namespace BTN.Core.Enums
         Website,
         WhatsApp,
         Referral,
-        Other
+        Other,
+        Instagram,
+        Twitter,
+        LinkedIn,
+        YouTube
     }
 }

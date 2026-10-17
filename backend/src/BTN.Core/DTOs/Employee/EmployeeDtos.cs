@@ -9,6 +9,12 @@ public class EmployeeResponse
     public string? Phone { get; set; }
     public string? EmployeeCode { get; set; }
     public string? Department { get; set; }
+    public Guid? OrgUnitId { get; set; }
+    public string? OrgUnitName { get; set; }
+    public string? OrgUnitCode { get; set; }
+    public Guid? ReportsToEmployeeId { get; set; }
+    public string? ReportsToName { get; set; }
+    public string JobTitle { get; set; } = "Employee";
     public bool IsActive { get; set; }
     public DateTime? JoinedAt { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -22,6 +28,10 @@ public class CreateEmployeeRequest
     public string? Phone { get; set; }
     public string? EmployeeCode { get; set; }
     public string? Department { get; set; }
+    public Guid? OrgUnitId { get; set; }
+    public Guid? ReportsToEmployeeId { get; set; }
+    public string? JobTitle { get; set; }
+    public bool SetAsOrgUnitHead { get; set; }
 }
 
 public class UpdateEmployeeRequest
@@ -30,7 +40,11 @@ public class UpdateEmployeeRequest
     public string? Phone { get; set; }
     public string? EmployeeCode { get; set; }
     public string? Department { get; set; }
+    public Guid? OrgUnitId { get; set; }
+    public Guid? ReportsToEmployeeId { get; set; }
+    public string? JobTitle { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool SetAsOrgUnitHead { get; set; }
 }
 
 public class EmployeePerformanceResponse
