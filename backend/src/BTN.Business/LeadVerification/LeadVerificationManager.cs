@@ -8,14 +8,6 @@ using BTN.Data.Entities;
 
 namespace BTN.Business.LeadVerification;
 
-public interface ILeadVerificationManager
-{
-    Task<List<VerificationMethodDto>> GetMethodsAsync();
-    Task<List<VerificationResponse>> GetHistoryAsync(Guid leadId);
-    Task<LeadResponse?> VerifyLeadAsync(Guid leadId, CreateVerificationRequest request, Guid userId);
-    Task<VerificationResponse?> GetLatestVerificationAsync(Guid leadId);
-}
-
 public class LeadVerificationManager : ILeadVerificationManager
 {
     private readonly ILeadRepository _leadRepository;

@@ -10,14 +10,6 @@ using UserEntity = BTN.Data.Entities.User;
 
 namespace BTN.Business.Customer;
 
-public interface ICustomerManager
-{
-    Task<PagedResult<CustomerResponse>> GetCustomersAsync(int page, int pageSize);
-    Task<CustomerResponse> CreateAsync(CreateCustomerRequest request, Guid adminId);
-    Task<CustomerResponse?> GetByUserIdAsync(Guid userId);
-    Task<PagedResult<BTN.Core.DTOs.Leads.LeadResponse>> GetAvailableLeadsAsync(int page, int pageSize, string? search, string? city);
-}
-
 public class CustomerManager : ICustomerManager
 {
     private readonly ICustomerRepository _customerRepository;

@@ -37,6 +37,24 @@ namespace BTN.Data.Entities
         public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     }
 
+    public class OrgUnit
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+        public Guid? ParentOrgUnitId { get; set; }
+        public OrgUnit? ParentOrgUnit { get; set; }
+        public Guid? HeadEmployeeId { get; set; }
+        public Employee? HeadEmployee { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<OrgUnit> Children { get; set; } = new List<OrgUnit>();
+        public ICollection<Employee> Members { get; set; } = new List<Employee>();
+        public ICollection<Lead> Leads { get; set; } = new List<Lead>();
+    }
+
     public class Employee
     {
         public Guid Id { get; set; }
@@ -44,12 +62,19 @@ namespace BTN.Data.Entities
         public User? User { get; set; }
         public string? EmployeeCode { get; set; }
         public string? Department { get; set; }
+        public Guid? OrgUnitId { get; set; }
+        public OrgUnit? OrgUnit { get; set; }
+        public Guid? ReportsToEmployeeId { get; set; }
+        public Employee? ReportsToEmployee { get; set; }
+        public JobTitle JobTitle { get; set; } = JobTitle.Employee;
         public DateTime? JoinedAt { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public ICollection<LeadAssignment> LeadAssignments { get; set; } = new List<LeadAssignment>();
         public ICollection<Lead> AssignedLeads { get; set; } = new List<Lead>();
+        public ICollection<Employee> DirectReports { get; set; } = new List<Employee>();
+        public ICollection<OrgUnit> HeadedOrgUnits { get; set; } = new List<OrgUnit>();
     }
 
     public class Customer
@@ -72,6 +97,7 @@ namespace BTN.Data.Entities
         public string CustomerName { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string? Email { get; set; }
+        public string? Address { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
         public string? Pincode { get; set; }
@@ -89,6 +115,10 @@ namespace BTN.Data.Entities
         public Lead? DuplicateOfLead { get; set; }
         public Guid? AssignedEmployeeId { get; set; }
         public Employee? AssignedEmployee { get; set; }
+        public Guid? OrgUnitId { get; set; }
+        public OrgUnit? OrgUnit { get; set; }
+        public Guid? AssignedHeadEmployeeId { get; set; }
+        public Employee? AssignedHeadEmployee { get; set; }
         public string? InquiryType { get; set; }
         public string? InquiryDetails { get; set; }
         public string? CustomerRequirements { get; set; }
@@ -358,6 +388,78 @@ namespace BTN.Data.Entities
         public string? OldValues { get; set; }
         public string? NewValues { get; set; }
         public string? IpAddress { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    public class CampaignSubmission
+    {
+        public Guid Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string Pincode { get; set; } = string.Empty;
+        public string? ProductInterest { get; set; }
+        public string? JobInterest { get; set; }
+        public string? JobRole { get; set; }
+        public string Platform { get; set; } = "other";
+        public string Campaign { get; set; } = "BTN Gift Campaign";
+        public GiftStatus GiftStatus { get; set; } = GiftStatus.Processing;
+        public DateTime? StatusUpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    public class CampaignFormAppearance
+    {
+        public Guid Id { get; set; }
+        public string ThemeKey { get; set; } = "forest-gold";
+        public string BackgroundColor { get; set; } = "#0f1c17";
+        public string AccentColor { get; set; } = "#e8c572";
+        public string CtaColor { get; set; } = "#d4a853";
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    public class ManagedForm
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string IntroTitle { get; set; } = "Tell us a little about you";
+        public string IntroBody { get; set; } = "One question at a time. You can go back and change an answer.";
+        public string SubmitLabel { get; set; } = "Submit";
+        public bool IsPublished { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public ICollection<ManagedFormField> Fields { get; set; } = new List<ManagedFormField>();
+        public ICollection<ManagedFormSubmission> Submissions { get; set; } = new List<ManagedFormSubmission>();
+    }
+
+    public class ManagedFormField
+    {
+        public Guid Id { get; set; }
+        public Guid FormId { get; set; }
+        public ManagedForm? Form { get; set; }
+        public string FieldKey { get; set; } = string.Empty;
+        public string FieldType { get; set; } = "shortText";
+        public string Label { get; set; } = string.Empty;
+        public string? Hint { get; set; }
+        public string? Placeholder { get; set; }
+        public bool IsRequired { get; set; }
+        public int SortOrder { get; set; }
+        public string? OptionsJson { get; set; }
+        public string? ValidationJson { get; set; }
+        public string? SettingsJson { get; set; }
+    }
+
+    public class ManagedFormSubmission
+    {
+        public Guid Id { get; set; }
+        public Guid FormId { get; set; }
+        public ManagedForm? Form { get; set; }
+        public string AnswersJson { get; set; } = "{}";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

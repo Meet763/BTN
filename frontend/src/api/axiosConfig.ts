@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getFeedbackBridge } from '../utils/feedbackBridge';
 
-const API_BASE_URL = 'http://localhost:5076';
+import { API_BASE_URL } from './apiBase';
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -32,7 +32,7 @@ const isMutation = (method?: string) => {
 
 const skipGlobalLoader = (url?: string) => {
   if (!url) return false;
-  return url.includes('/auth/refresh') || url.includes('/auth/login');
+  return url.includes('/auth/refresh') || url.includes('/auth/login') || url.includes('/public/campaign') || url.includes('/public/forms');
 };
 
 axiosInstance.interceptors.request.use(
@@ -76,7 +76,8 @@ axiosInstance.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/login')
+      !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/public/campaign')
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

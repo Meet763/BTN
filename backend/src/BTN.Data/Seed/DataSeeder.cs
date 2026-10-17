@@ -1,8 +1,8 @@
-0using BTN.Core.Enums;
+using BTN.Core.Campaign;
+using BTN.Core.Enums;
 using BTN.Data.Context;
 using BTN.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using BCrypt.Net;
 
 namespace BTN.Data.Seed;
 
@@ -15,6 +15,9 @@ public static class DataSeeder
         await SeedRolesAsync(context);
         await SeedVerificationMethodsAsync(context);
         await SeedAdminUserAsync(context);
+        await SeedOrgUnitsAsync(context);
+        await MigrateDepartmentsToOrgUnitsAsync(context);
+        await SeedCampaignFormAppearanceAsync(context);
     }
 
     private static async Task SeedRolesAsync(BtnDbContext context)
@@ -92,6 +95,80 @@ public static class DataSeeder
             RoleId = platformOwnerRole.Id,
             Status = UserStatus.Active,
             CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedOrgUnitsAsync(BtnDbContext context)
+    {
+        var samples = new (string Code, string Name)[]
+        {
+            ("HVAC", "Air Conditioners"),
+            ("INSURANCE", "Insurance"),
+            ("SOLAR", "Solar Energy"),
+            ("HEALTHCARE", "Healthcare"),
+            ("REALESTATE", "Real Estate")
+        };
+
+        foreach (var (code, name) in samples)
+        {
+            if (await context.OrgUnits.AnyAsync(o => o.Code == code)) continue;
+            context.OrgUnits.Add(new OrgUnit
+            {
+                Name = name,
+                Code = code,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task MigrateDepartmentsToOrgUnitsAsync(BtnDbContext context)
+    {
+        var units = await context.OrgUnits.ToListAsync();
+        if (units.Count == 0) return;
+
+        var employees = await context.Employees
+            .Where(e => e.OrgUnitId == null && e.Department != null && e.Department != "")
+            .ToListAsync();
+
+        foreach (var employee in employees)
+        {
+            var dept = employee.Department!.Trim();
+            var match = units.FirstOrDefault(u =>
+                string.Equals(u.Code, dept, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(u.Name, dept, StringComparison.OrdinalIgnoreCase) ||
+                u.Name.Contains(dept, StringComparison.OrdinalIgnoreCase) ||
+                dept.Contains(u.Name, StringComparison.OrdinalIgnoreCase) ||
+                dept.Contains(u.Code, StringComparison.OrdinalIgnoreCase));
+
+            if (match != null)
+            {
+                employee.OrgUnitId = match.Id;
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedCampaignFormAppearanceAsync(BtnDbContext context)
+    {
+        if (await context.CampaignFormAppearances.AnyAsync())
+        {
+            return;
+        }
+
+        context.CampaignFormAppearances.Add(new CampaignFormAppearance
+        {
+            Id = GiftFormThemes.AppearanceId,
+            ThemeKey = GiftFormThemes.ForestGold,
+            BackgroundColor = "#0f1c17",
+            AccentColor = "#e8c572",
+            CtaColor = "#d4a853",
             UpdatedAt = DateTime.UtcNow
         });
         await context.SaveChangesAsync();

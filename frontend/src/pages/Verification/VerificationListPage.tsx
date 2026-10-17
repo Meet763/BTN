@@ -224,6 +224,8 @@ export const VerificationListPage: React.FC = () => {
         if (source === 'GoogleAds') color = 'geekblue';
         if (source === 'MetaAds') color = 'purple';
         if (source === 'WhatsApp') color = 'green';
+        if (source === 'Instagram') color = 'magenta';
+        if (source === 'Twitter') color = 'blue';
         return <Tag color={color}>{source}</Tag>;
       },
     },
@@ -354,6 +356,10 @@ export const VerificationListPage: React.FC = () => {
               <Option value="MetaAds">Meta Ads</Option>
               <Option value="Website">Website</Option>
               <Option value="WhatsApp">WhatsApp</Option>
+              <Option value="Instagram">Instagram</Option>
+              <Option value="Twitter">X / Twitter</Option>
+              <Option value="LinkedIn">LinkedIn</Option>
+              <Option value="YouTube">YouTube</Option>
               <Option value="Referral">Referral</Option>
               <Option value="Other">Other</Option>
             </Select>

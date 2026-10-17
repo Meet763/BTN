@@ -401,6 +401,140 @@ namespace BTN.Data.Migrations
                     b.ToTable("billing_quotation_lines");
                 });
 
+            modelBuilder.Entity("BTN.Data.Entities.CampaignFormAppearance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccentColor")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("accent_color");
+
+                    b.Property<string>("BackgroundColor")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("background_color");
+
+                    b.Property<string>("CtaColor")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cta_color");
+
+                    b.Property<string>("ThemeKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("theme_key");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_campaign_form_appearances");
+
+                    b.ToTable("campaign_form_appearances");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.CampaignSubmission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("address");
+
+                    b.Property<string>("Campaign")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("campaign");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("city");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("full_name");
+
+                    b.Property<int>("GiftStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("gift_status");
+
+                    b.Property<string>("JobInterest")
+                        .HasColumnType("text")
+                        .HasColumnName("job_interest");
+
+                    b.Property<string>("JobRole")
+                        .HasColumnType("text")
+                        .HasColumnName("job_role");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Pincode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("pincode");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("platform");
+
+                    b.Property<string>("ProductInterest")
+                        .HasColumnType("text")
+                        .HasColumnName("product_interest");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("state");
+
+                    b.Property<DateTime?>("StatusUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_campaign_submissions");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_campaign_submissions_created_at");
+
+                    b.HasIndex("GiftStatus")
+                        .HasDatabaseName("ix_campaign_submissions_gift_status");
+
+                    b.HasIndex("JobRole")
+                        .HasDatabaseName("ix_campaign_submissions_job_role");
+
+                    b.HasIndex("Phone")
+                        .HasDatabaseName("ix_campaign_submissions_phone");
+
+                    b.HasIndex("Platform")
+                        .HasDatabaseName("ix_campaign_submissions_platform");
+
+                    b.ToTable("campaign_submissions");
+                });
+
             modelBuilder.Entity("BTN.Data.Entities.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -457,9 +591,21 @@ namespace BTN.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
+                    b.Property<int>("JobTitle")
+                        .HasColumnType("integer")
+                        .HasColumnName("job_title");
+
                     b.Property<DateTime?>("JoinedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("joined_at");
+
+                    b.Property<Guid?>("OrgUnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("org_unit_id");
+
+                    b.Property<Guid?>("ReportsToEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reports_to_employee_id");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -467,6 +613,12 @@ namespace BTN.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_employees");
+
+                    b.HasIndex("OrgUnitId")
+                        .HasDatabaseName("ix_employees_org_unit_id");
+
+                    b.HasIndex("ReportsToEmployeeId")
+                        .HasDatabaseName("ix_employees_reports_to_employee_id");
 
                     b.HasIndex("UserId")
                         .IsUnique()
@@ -482,9 +634,17 @@ namespace BTN.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("text")
+                        .HasColumnName("address");
+
                     b.Property<Guid?>("AssignedEmployeeId")
                         .HasColumnType("uuid")
                         .HasColumnName("assigned_employee_id");
+
+                    b.Property<Guid?>("AssignedHeadEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigned_head_employee_id");
 
                     b.Property<decimal?>("BudgetAmount")
                         .HasColumnType("numeric")
@@ -546,6 +706,10 @@ namespace BTN.Data.Migrations
                     b.Property<decimal?>("ListPrice")
                         .HasColumnType("numeric")
                         .HasColumnName("list_price");
+
+                    b.Property<Guid?>("OrgUnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("org_unit_id");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -610,8 +774,14 @@ namespace BTN.Data.Migrations
                     b.HasIndex("AssignedEmployeeId")
                         .HasDatabaseName("ix_leads_assigned_employee_id");
 
+                    b.HasIndex("AssignedHeadEmployeeId")
+                        .HasDatabaseName("ix_leads_assigned_head_employee_id");
+
                     b.HasIndex("DuplicateOfLeadId")
                         .HasDatabaseName("ix_leads_duplicate_of_lead_id");
+
+                    b.HasIndex("OrgUnitId")
+                        .HasDatabaseName("ix_leads_org_unit_id");
 
                     b.HasIndex("VerifiedBy")
                         .HasDatabaseName("ix_leads_verified_by");
@@ -838,6 +1008,216 @@ namespace BTN.Data.Migrations
                         .HasDatabaseName("ix_lead_verifications_verified_by");
 
                     b.ToTable("lead_verifications");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.ManagedForm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("IntroBody")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("intro_body");
+
+                    b.Property<string>("IntroTitle")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("intro_title");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_published");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("SubmitLabel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("submit_label");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_managed_forms");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_managed_forms_slug");
+
+                    b.ToTable("managed_forms");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.ManagedFormField", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("FieldKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("field_key");
+
+                    b.Property<string>("FieldType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("field_type");
+
+                    b.Property<Guid>("FormId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("form_id");
+
+                    b.Property<string>("Hint")
+                        .HasColumnType("text")
+                        .HasColumnName("hint");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_required");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("label");
+
+                    b.Property<string>("OptionsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("options_json");
+
+                    b.Property<string>("Placeholder")
+                        .HasColumnType("text")
+                        .HasColumnName("placeholder");
+
+                    b.Property<string>("SettingsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("settings_json");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("ValidationJson")
+                        .HasColumnType("text")
+                        .HasColumnName("validation_json");
+
+                    b.HasKey("Id")
+                        .HasName("pk_managed_form_fields");
+
+                    b.HasIndex("FormId", "FieldKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_managed_form_fields_form_id_field_key");
+
+                    b.HasIndex("FormId", "SortOrder")
+                        .HasDatabaseName("ix_managed_form_fields_form_id_sort_order");
+
+                    b.ToTable("managed_form_fields");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.ManagedFormSubmission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AnswersJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("answers_json");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("FormId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("form_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_managed_form_submissions");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_managed_form_submissions_created_at");
+
+                    b.HasIndex("FormId")
+                        .HasDatabaseName("ix_managed_form_submissions_form_id");
+
+                    b.ToTable("managed_form_submissions");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.OrgUnit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("HeadEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("head_employee_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<Guid?>("ParentOrgUnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_org_unit_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_org_units");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_org_units_code");
+
+                    b.HasIndex("HeadEmployeeId")
+                        .HasDatabaseName("ix_org_units_head_employee_id");
+
+                    b.HasIndex("ParentOrgUnitId")
+                        .HasDatabaseName("ix_org_units_parent_org_unit_id");
+
+                    b.ToTable("org_units");
                 });
 
             modelBuilder.Entity("BTN.Data.Entities.PaymentOrder", b =>
@@ -1339,12 +1719,28 @@ namespace BTN.Data.Migrations
 
             modelBuilder.Entity("BTN.Data.Entities.Employee", b =>
                 {
+                    b.HasOne("BTN.Data.Entities.OrgUnit", "OrgUnit")
+                        .WithMany("Members")
+                        .HasForeignKey("OrgUnitId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_employees_org_units_org_unit_id");
+
+                    b.HasOne("BTN.Data.Entities.Employee", "ReportsToEmployee")
+                        .WithMany("DirectReports")
+                        .HasForeignKey("ReportsToEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_employees_employees_reports_to_employee_id");
+
                     b.HasOne("BTN.Data.Entities.User", "User")
                         .WithOne("Employee")
                         .HasForeignKey("BTN.Data.Entities.Employee", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_employees_users_user_id");
+
+                    b.Navigation("OrgUnit");
+
+                    b.Navigation("ReportsToEmployee");
 
                     b.Navigation("User");
                 });
@@ -1357,11 +1753,23 @@ namespace BTN.Data.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_leads_employees_assigned_employee_id");
 
+                    b.HasOne("BTN.Data.Entities.Employee", "AssignedHeadEmployee")
+                        .WithMany()
+                        .HasForeignKey("AssignedHeadEmployeeId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_leads_employees_assigned_head_employee_id");
+
                     b.HasOne("BTN.Data.Entities.Lead", "DuplicateOfLead")
                         .WithMany()
                         .HasForeignKey("DuplicateOfLeadId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_leads_leads_duplicate_of_lead_id");
+
+                    b.HasOne("BTN.Data.Entities.OrgUnit", "OrgUnit")
+                        .WithMany("Leads")
+                        .HasForeignKey("OrgUnitId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_leads_org_units_org_unit_id");
 
                     b.HasOne("BTN.Data.Entities.User", "VerifiedByUser")
                         .WithMany("VerifiedLeads")
@@ -1371,7 +1779,11 @@ namespace BTN.Data.Migrations
 
                     b.Navigation("AssignedEmployee");
 
+                    b.Navigation("AssignedHeadEmployee");
+
                     b.Navigation("DuplicateOfLead");
+
+                    b.Navigation("OrgUnit");
 
                     b.Navigation("VerifiedByUser");
                 });
@@ -1464,6 +1876,49 @@ namespace BTN.Data.Migrations
                     b.Navigation("VerificationMethod");
 
                     b.Navigation("VerifiedByUser");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.ManagedFormField", b =>
+                {
+                    b.HasOne("BTN.Data.Entities.ManagedForm", "Form")
+                        .WithMany("Fields")
+                        .HasForeignKey("FormId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_managed_form_fields_managed_forms_form_id");
+
+                    b.Navigation("Form");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.ManagedFormSubmission", b =>
+                {
+                    b.HasOne("BTN.Data.Entities.ManagedForm", "Form")
+                        .WithMany("Submissions")
+                        .HasForeignKey("FormId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_managed_form_submissions_managed_forms_form_id");
+
+                    b.Navigation("Form");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.OrgUnit", b =>
+                {
+                    b.HasOne("BTN.Data.Entities.Employee", "HeadEmployee")
+                        .WithMany("HeadedOrgUnits")
+                        .HasForeignKey("HeadEmployeeId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_org_units_employees_head_employee_id");
+
+                    b.HasOne("BTN.Data.Entities.OrgUnit", "ParentOrgUnit")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentOrgUnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_org_units_org_units_parent_org_unit_id");
+
+                    b.Navigation("HeadEmployee");
+
+                    b.Navigation("ParentOrgUnit");
                 });
 
             modelBuilder.Entity("BTN.Data.Entities.PaymentOrder", b =>
@@ -1587,6 +2042,10 @@ namespace BTN.Data.Migrations
                 {
                     b.Navigation("AssignedLeads");
 
+                    b.Navigation("DirectReports");
+
+                    b.Navigation("HeadedOrgUnits");
+
                     b.Navigation("LeadAssignments");
                 });
 
@@ -1599,6 +2058,22 @@ namespace BTN.Data.Migrations
                     b.Navigation("StatusHistory");
 
                     b.Navigation("Verifications");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.ManagedForm", b =>
+                {
+                    b.Navigation("Fields");
+
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("BTN.Data.Entities.OrgUnit", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Leads");
+
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("BTN.Data.Entities.Role", b =>

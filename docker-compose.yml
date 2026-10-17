@@ -20,7 +20,11 @@ services:
     build:
       context: .
       dockerfile: deploy/docker/api.Dockerfile
+<<<<<<< HEAD
     image: ghcr.io/meet763/btn-api:latest
+=======
+    image: btn-api:local
+>>>>>>> 54d49b9b884bbd1e917038b4774211b3e8111ead
     restart: unless-stopped
     depends_on:
       postgres:
@@ -45,7 +49,11 @@ services:
       dockerfile: deploy/docker/web.Dockerfile
       args:
         VITE_API_URL: ""
+<<<<<<< HEAD
     image: ghcr.io/meet763/btn-web:latest
+=======
+    image: btn-web:local
+>>>>>>> 54d49b9b884bbd1e917038b4774211b3e8111ead
     restart: unless-stopped
     depends_on:
       api:

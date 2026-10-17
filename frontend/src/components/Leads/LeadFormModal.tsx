@@ -25,6 +25,10 @@ const SOURCE_OPTIONS = [
   { value: 'Website', label: 'Website' },
   { value: 'WhatsApp', label: 'WhatsApp' },
   { value: 'Referral', label: 'Referral' },
+  { value: 'Instagram', label: 'Instagram' },
+  { value: 'Twitter', label: 'X / Twitter' },
+  { value: 'LinkedIn', label: 'LinkedIn' },
+  { value: 'YouTube', label: 'YouTube' },
   { value: 'Other', label: 'Other' },
 ];
 

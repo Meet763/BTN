@@ -8,6 +8,8 @@ public static class DependencyInjection
     public static IServiceCollection AddBusinessServices(this IServiceCollection services)
     {
         services.AddScoped<Authentication.ITokenGenerator, Authentication.TokenGenerator>();
+        services.AddScoped<Org.IOrgScopeService, Org.OrgScopeService>();
+        services.AddScoped<Routing.ILeadRoutingService, Routing.LeadRoutingService>();
 
         services.Scan(scan => scan
             .FromAssemblyOf<BusinessAssemblyMarker>()

@@ -7,6 +7,9 @@ export interface User {
   fullName: string;
   email: string;
   role: string;
+  employeeId?: string;
+  orgUnitId?: string;
+  jobTitle?: string;
 }
 
 interface AuthContextType {
@@ -36,6 +39,16 @@ const decodeToken = (token: string): any => {
   }
 };
 
+const userFromToken = (decoded: any): User => ({
+  id: decoded.sub || decoded.nameid,
+  fullName: decoded.name || decoded.unique_name,
+  email: decoded.email,
+  role: decoded.role,
+  employeeId: decoded.employee_id,
+  orgUnitId: decoded.org_unit_id,
+  jobTitle: decoded.job_title,
+});
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,15 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = localStorage.getItem('btn-token');
       if (token) {
         const decoded = decodeToken(token);
-        // Check if token is expired
-        if (decoded && decoded.exp * 1000 > Date.now()) { // Wait, Date.now() in JS
-          // Ah, in JS it's Date.now(), let's write Date.now()
-          setUser({
-            id: decoded.sub || decoded.nameid,
-            fullName: decoded.name || decoded.unique_name,
-            email: decoded.email,
-            role: decoded.role,
-          });
+        if (decoded && decoded.exp * 1000 > Date.now()) {
+          setUser(userFromToken(decoded));
         } else {
           localStorage.clear();
         }
@@ -70,9 +76,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { accessToken, refreshToken, user: userData } = response.data.data;
         localStorage.setItem('btn-token', accessToken);
         localStorage.setItem('btn-refresh-token', refreshToken);
-        setUser(userData);
+        const nextUser: User = {
+          id: userData.id,
+          fullName: userData.fullName,
+          email: userData.email,
+          role: userData.role,
+          employeeId: userData.employeeId,
+          orgUnitId: userData.orgUnitId,
+          jobTitle: userData.jobTitle,
+        };
+        setUser(nextUser);
         message.success('Welcome back!');
-        return userData;
+        return nextUser;
       }
       return null;
     } catch (error: any) {

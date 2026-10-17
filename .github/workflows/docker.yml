@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: Build and deploy BTN
 
 on:
@@ -74,3 +75,20 @@ jobs:
             "docker login ghcr.io --username '$GHCR_USERNAME' --password-stdin"
           printf -v remote_command 'cd %q && git pull --ff-only origin alpha && docker-compose pull && docker-compose up -d --no-build' "$VM_APP_DIR"
           ssh -i ~/.ssh/id_ed25519 "$VM_USER@$VM_HOST" "$remote_command"
+=======
+name: Build Docker images
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build images
+        run: docker compose build
+>>>>>>> 54d49b9b884bbd1e917038b4774211b3e8111ead
