@@ -4,14 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BTN.Data.Purchase;
 
-public interface IPurchaseRepository
-{
-    void Add(Entities.Purchase purchase);
-    Task<Entities.Purchase?> GetByIdAsync(Guid id);
-    IQueryable<Entities.Purchase> QueryByCustomer(Guid customerId);
-    Task<bool> LeadAlreadySoldAsync(Guid leadId);
-}
-
 public class PurchaseRepository : IPurchaseRepository
 {
     private readonly BtnDbContext _context;

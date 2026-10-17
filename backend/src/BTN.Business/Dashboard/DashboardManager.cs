@@ -5,11 +5,6 @@ using BTN.Data.Lead;
 
 namespace BTN.Business.Dashboard;
 
-public interface IDashboardManager
-{
-    Task<AdminDashboardResponse> GetAdminDashboardAsync();
-}
-
 public class DashboardManager : IDashboardManager
 {
     private readonly IDashboardRepository _dashboardRepository;

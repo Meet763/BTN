@@ -4,19 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BTN.Data.Employee;
 
-public interface IEmployeeRepository
-{
-    IQueryable<Entities.Employee> Query();
-    Task<Entities.Employee?> GetByIdAsync(Guid id);
-    Task<Entities.Employee?> GetByUserIdAsync(Guid userId);
-    void Add(Entities.Employee employee);
-    Task<List<Entities.Lead>> GetAssignedLeadsAsync(Guid employeeId, int page, int pageSize);
-    Task<int> CountAssignedLeadsAsync(Guid employeeId);
-    Task<int> CountVerificationsAsync(Guid employeeId, DateTime? since = null);
-    Task<List<LeadAssignment>> GetAssignmentHistoryAsync(Guid employeeId, int take = 50);
-    Task<List<LeadVerification>> GetVerificationHistoryAsync(Guid employeeId, int take = 50);
-}
-
 public class EmployeeRepository : IEmployeeRepository
 {
     private readonly BtnDbContext _context;
@@ -27,7 +14,10 @@ public class EmployeeRepository : IEmployeeRepository
     }
 
     public IQueryable<Entities.Employee> Query() =>
-        _context.Employees.Include(e => e.User).ThenInclude(u => u!.Role);
+        _context.Employees
+            .Include(e => e.User)!.ThenInclude(u => u!.Role)
+            .Include(e => e.OrgUnit)
+            .Include(e => e.ReportsToEmployee)!.ThenInclude(r => r!.User);
 
     public Task<Entities.Employee?> GetByIdAsync(Guid id) =>
         Query().FirstOrDefaultAsync(e => e.Id == id);
@@ -47,6 +37,12 @@ public class EmployeeRepository : IEmployeeRepository
 
     public Task<int> CountAssignedLeadsAsync(Guid employeeId) =>
         _context.Leads.CountAsync(l => l.AssignedEmployeeId == employeeId);
+
+    public Task<int> CountOpenLeadsAsync(Guid employeeId) =>
+        _context.Leads.CountAsync(l =>
+            l.AssignedEmployeeId == employeeId &&
+            l.VerificationStatus != Core.Enums.LeadStatus.Verified &&
+            l.VerificationStatus != Core.Enums.LeadStatus.Rejected);
 
     public Task<int> CountVerificationsAsync(Guid employeeId, DateTime? since = null)
     {

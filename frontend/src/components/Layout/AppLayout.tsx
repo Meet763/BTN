@@ -16,6 +16,9 @@ import {
   DollarOutlined,
   UsergroupAddOutlined,
   FormOutlined,
+  ApartmentOutlined,
+  ClusterOutlined,
+  GiftOutlined,
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -65,14 +68,20 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       { key: '/dashboard', icon: <DashboardOutlined />, label: <Link to="/dashboard">Dashboard</Link> },
       { key: '/users', icon: <UserOutlined />, label: <Link to="/users">Users</Link> },
       { key: '/employees', icon: <TeamOutlined />, label: <Link to="/employees">Employees</Link> },
+      { key: '/admin/org-units', icon: <ApartmentOutlined />, label: <Link to="/admin/org-units">Org Products</Link> },
+      { key: '/admin/hierarchy', icon: <ClusterOutlined />, label: <Link to="/admin/hierarchy">Hierarchy</Link> },
+      { key: '/my-team', icon: <TeamOutlined />, label: <Link to="/my-team">My Team</Link> },
       { key: '/customers', icon: <UsergroupAddOutlined />, label: <Link to="/customers">Customers</Link> },
       { key: '/verification', icon: <FileProtectOutlined />, label: <Link to="/verification">Verification</Link> },
-      { key: '/leads/advertise', icon: <FormOutlined />, label: <Link to="/leads/advertise">Advertise form</Link> },
+      { key: '/leads/advertise', icon: <FormOutlined />, label: <Link to="/leads/advertise">Gift form links</Link> },
+      { key: '/campaign/submissions', icon: <GiftOutlined />, label: <Link to="/campaign/submissions">Gift submissions</Link> },
+      { key: '/forms', icon: <FileTextOutlined />, label: <Link to="/forms">Forms</Link> },
       { key: '/leads/sales', icon: <DollarOutlined />, label: <Link to="/leads/sales">Lead sales</Link> },
     );
   } else if (role === 'Employee' || role === 'VerificationAgent') {
     menuItems.push(
       { key: '/verification', icon: <FileProtectOutlined />, label: <Link to="/verification">My Leads</Link> },
+      { key: '/my-team', icon: <TeamOutlined />, label: <Link to="/my-team">My Team</Link> },
       { key: '/customers', icon: <UsergroupAddOutlined />, label: <Link to="/customers">Customers</Link> },
       { key: '/my-work', icon: <TeamOutlined />, label: <Link to="/my-work">My work</Link> },
     );

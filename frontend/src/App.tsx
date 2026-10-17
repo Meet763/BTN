@@ -24,7 +24,17 @@ import { QuotationPrintPage } from './pages/Billing/QuotationPrintPage';
 import { CustomerListPage } from './pages/Customers/CustomerListPage';
 import { LeadSalesPage } from './pages/Leads/LeadSalesPage';
 import { AdvertiseLeadFormPage } from './pages/Leads/AdvertiseLeadFormPage';
+import { CampaignSubmissionsPage } from './pages/Campaign/CampaignSubmissionsPage';
+import { GiftCampaignPage } from './pages/Public/GiftCampaignPage';
+import { PublicFormPage } from './pages/Public/PublicFormPage';
+import { FormListPage } from './pages/Forms/FormListPage';
+import { FormEditorPage } from './pages/Forms/FormEditorPage';
+import { OrgUnitListPage } from './pages/Org/OrgUnitListPage';
+import { OrgUnitDetailPage } from './pages/Org/OrgUnitDetailPage';
+import { HierarchyExplorerPage } from './pages/Org/HierarchyExplorerPage';
+import { MyTeamPage } from './pages/Org/MyTeamPage';
 import { HomeRedirect } from './components/HomeRedirect';
+import { AccessDeniedPage } from './pages/Public/AccessDeniedPage';
 import { FeedbackProvider } from './context/FeedbackContext';
 import './styles/global.css';
 
@@ -37,13 +47,23 @@ const App: React.FC = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/gift" element={<GiftCampaignPage />} />
+            <Route path="/gift/:platform" element={<GiftCampaignPage />} />
+            <Route path="/f/:slug" element={<PublicFormPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={withLayout(<DashboardPage />)} />
               <Route path="/users" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><UserListPage /></RoleGuard>)} />
               <Route path="/employees" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><EmployeeListPage /></RoleGuard>)} />
+              <Route path="/admin/org-units" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><OrgUnitListPage /></RoleGuard>)} />
+              <Route path="/admin/org-units/:id" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><OrgUnitDetailPage /></RoleGuard>)} />
+              <Route path="/admin/hierarchy" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><HierarchyExplorerPage /></RoleGuard>)} />
+              <Route path="/my-team" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner', 'Employee', 'VerificationAgent']}><MyTeamPage /></RoleGuard>)} />
               <Route path="/customers" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner', 'Employee', 'VerificationAgent']}><CustomerListPage /></RoleGuard>)} />
               <Route path="/leads/sales" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><LeadSalesPage /></RoleGuard>)} />
               <Route path="/leads/advertise" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><AdvertiseLeadFormPage /></RoleGuard>)} />
+              <Route path="/campaign/submissions" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><CampaignSubmissionsPage /></RoleGuard>)} />
+              <Route path="/forms" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><FormListPage /></RoleGuard>)} />
+              <Route path="/forms/:id" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner']}><FormEditorPage /></RoleGuard>)} />
               <Route path="/verification" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner', 'Employee', 'VerificationAgent']}><VerificationListPage /></RoleGuard>)} />
               <Route path="/verification/:id" element={withLayout(<RoleGuard allowedRoles={['PlatformOwner', 'Employee', 'VerificationAgent']}><VerificationDetailPage /></RoleGuard>)} />
               <Route path="/my-work" element={withLayout(<RoleGuard allowedRoles={['Employee', 'VerificationAgent']}><EmployeeWorkPage /></RoleGuard>)} />
@@ -58,7 +78,7 @@ const App: React.FC = () => (
               <Route path="/customer/billing/quotations/:id/print" element={withLayout(<RoleGuard allowedRoles={['Customer']}><QuotationPrintPage /></RoleGuard>)} />
             </Route>
             <Route path="/" element={<HomeRedirect />} />
-            <Route path="*" element={<HomeRedirect />} />
+            <Route path="*" element={<AccessDeniedPage />} />
           </Routes>
         </BrowserRouter>
       </FeedbackProvider>

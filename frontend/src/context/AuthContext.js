@@ -1,0 +1,107 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { axiosInstance } from '../api/axiosConfig';
+import { message } from 'antd';
+const AuthContext = createContext(undefined);
+const decodeToken = (token) => {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window
+            .atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join(''));
+        return JSON.parse(jsonPayload);
+    }
+    catch (e) {
+        return null;
+    }
+};
+const userFromToken = (decoded) => ({
+    id: decoded.sub || decoded.nameid,
+    fullName: decoded.name || decoded.unique_name,
+    email: decoded.email,
+    role: decoded.role,
+    employeeId: decoded.employee_id,
+    orgUnitId: decoded.org_unit_id,
+    jobTitle: decoded.job_title,
+});
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        const initAuth = () => {
+            const token = localStorage.getItem('btn-token');
+            if (token) {
+                const decoded = decodeToken(token);
+                if (decoded && decoded.exp * 1000 > Date.now()) {
+                    setUser(userFromToken(decoded));
+                }
+                else {
+                    localStorage.clear();
+                }
+            }
+            setLoading(false);
+        };
+        initAuth();
+    }, []);
+    const login = async (email, password) => {
+        try {
+            const response = await axiosInstance.post('/api/auth/login', { email, password });
+            if (response.data.success) {
+                const { accessToken, refreshToken, user: userData } = response.data.data;
+                localStorage.setItem('btn-token', accessToken);
+                localStorage.setItem('btn-refresh-token', refreshToken);
+                const nextUser = {
+                    id: userData.id,
+                    fullName: userData.fullName,
+                    email: userData.email,
+                    role: userData.role,
+                    employeeId: userData.employeeId,
+                    orgUnitId: userData.orgUnitId,
+                    jobTitle: userData.jobTitle,
+                };
+                setUser(nextUser);
+                message.success('Welcome back!');
+                return nextUser;
+            }
+            return null;
+        }
+        catch (error) {
+            const errorMsg = error.response?.data?.error || 'Login failed. Please check your credentials.';
+            message.error(errorMsg);
+            return null;
+        }
+    };
+    const logout = async () => {
+        try {
+            const refreshToken = localStorage.getItem('btn-refresh-token');
+            if (refreshToken) {
+                await axiosInstance.post('/api/auth/logout', { refreshToken });
+            }
+        }
+        catch (e) {
+            console.error('Logout API failed:', e);
+        }
+        finally {
+            localStorage.clear();
+            setUser(null);
+            message.success('Logged out successfully');
+        }
+    };
+    return (_jsx(AuthContext.Provider, { value: {
+            user,
+            isAuthenticated: !!user,
+            loading,
+            login,
+            logout,
+        }, children: children }));
+};
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};

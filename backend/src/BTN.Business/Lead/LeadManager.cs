@@ -5,32 +5,29 @@ using BTN.Core.Enums;
 using BTN.Data;
 using BTN.Data.Entities;
 using BTN.Data.Lead;
+using BTN.Business.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using LeadEntity = BTN.Data.Entities.Lead;
 
 namespace BTN.Business.Lead;
 
-public interface ILeadManager
-{
-    Task<LeadResponse> CreateLeadAsync(CreateLeadRequest request);
-    Task<PagedResult<LeadResponse>> GetLeadsAsync(int page, int pageSize, string? status, string? source, string? search, DateTime? dateFrom, DateTime? dateTo, bool? isDuplicate, Guid? assignedEmployeeId = null);
-    Task<LeadResponse?> GetLeadByIdAsync(Guid id, bool maskPii = false);
-    Task<LeadResponse?> UpdateLeadAsync(Guid id, UpdateLeadRequest request, Guid userId);
-    Task<LeadStatsResponse> GetStatsAsync();
-    Task<BulkImportResponse> BulkImportLeadsAsync(BulkImportLeadsRequest request);
-    Task<LeadResponse?> SetListPriceAsync(Guid id, decimal price, Guid changedBy);
-    Task<LeadResponse?> SetSaleStatusAsync(Guid id, SaleStatus saleStatus, Guid changedBy);
-    Task<bool> DeleteLeadAsync(Guid id);
-}
-
 public class LeadManager : ILeadManager
 {
     private readonly ILeadRepository _leadRepository;
+    private readonly ILeadRoutingService _leadRoutingService;
+    private readonly IConfiguration _configuration;
     private readonly IUnitOfWork _unitOfWork;
 
-    public LeadManager(ILeadRepository leadRepository, IUnitOfWork unitOfWork)
+    public LeadManager(
+        ILeadRepository leadRepository,
+        ILeadRoutingService leadRoutingService,
+        IConfiguration configuration,
+        IUnitOfWork unitOfWork)
     {
         _leadRepository = leadRepository;
+        _leadRoutingService = leadRoutingService;
+        _configuration = configuration;
         _unitOfWork = unitOfWork;
     }
 
@@ -45,6 +42,7 @@ public class LeadManager : ILeadManager
             CustomerName = request.CustomerName,
             Phone = cleanPhone,
             Email = request.Email,
+            Address = request.Address,
             City = request.City,
             State = request.State,
             Pincode = request.Pincode,
@@ -62,7 +60,13 @@ public class LeadManager : ILeadManager
 
         _leadRepository.Add(lead);
         await _unitOfWork.SaveChangesAsync();
-        return LeadMapper.Map(lead);
+
+        var autoAssign = string.Equals(
+            _configuration["Routing:AutoAssignEnabled"], "true", StringComparison.OrdinalIgnoreCase);
+        await _leadRoutingService.RouteLeadAsync(lead, autoAssign);
+
+        var refreshed = await _leadRepository.GetByIdAsync(lead.Id) ?? lead;
+        return LeadMapper.Map(refreshed);
     }
 
     public async Task<PagedResult<LeadResponse>> GetLeadsAsync(int page, int pageSize, string? status, string? source, string? search, DateTime? dateFrom, DateTime? dateTo, bool? isDuplicate, Guid? assignedEmployeeId = null)

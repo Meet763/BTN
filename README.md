@@ -2,6 +2,8 @@
 
 Welcome to the **Business Trust Network (BTN)** repository. This document details the technical architecture, project layout, database management conventions, and developer guidelines for building and extending the BTN platform.
 
+**Feature plan:** [Google Product Taxonomy → lead department routing](docs/GOOGLE_TAXONOMY_ROUTING_PLAN.md) (local data import, SQL, auto-assign by `ProductInterest`).
+
 ---
 
 ## 📐 System Architecture Overview

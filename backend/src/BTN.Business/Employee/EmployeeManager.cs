@@ -3,37 +3,33 @@ using BTN.Core.DTOs.Employee;
 using BTN.Core.Enums;
 using BTN.Data;
 using BTN.Data.Employee;
+using BTN.Data.OrgUnits;
 using BTN.Data.User;
+using BTN.Business.Org;
 using Microsoft.EntityFrameworkCore;
 using UserEntity = BTN.Data.Entities.User;
 
 namespace BTN.Business.Employee;
 
-public interface IEmployeeManager
-{
-    Task<PagedResult<EmployeeResponse>> GetEmployeesAsync(int page, int pageSize, string? search);
-    Task<EmployeeResponse?> GetByIdAsync(Guid id);
-    Task<EmployeeResponse> CreateAsync(CreateEmployeeRequest request, Guid adminId);
-    Task<EmployeeResponse?> UpdateAsync(Guid id, UpdateEmployeeRequest request);
-    Task<bool> SetStatusAsync(Guid id, bool isActive);
-    Task<EmployeePerformanceResponse?> GetPerformanceAsync(Guid id);
-    Task<EmployeeResponse?> GetByUserIdAsync(Guid userId);
-    Task<List<EmployeeWorkHistoryItem>> GetWorkHistoryAsync(Guid employeeId);
-}
-
 public class EmployeeManager : IEmployeeManager
 {
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IOrgUnitRepository _orgUnitRepository;
+    private readonly IOrgScopeService _orgScopeService;
     private readonly IUnitOfWork _unitOfWork;
 
     public EmployeeManager(
         IEmployeeRepository employeeRepository,
         IUserRepository userRepository,
+        IOrgUnitRepository orgUnitRepository,
+        IOrgScopeService orgScopeService,
         IUnitOfWork unitOfWork)
     {
         _employeeRepository = employeeRepository;
         _userRepository = userRepository;
+        _orgUnitRepository = orgUnitRepository;
+        _orgScopeService = orgScopeService;
         _unitOfWork = unitOfWork;
     }
 
@@ -82,6 +78,9 @@ public class EmployeeManager : IEmployeeManager
             throw new InvalidOperationException("Email address is already in use.");
         }
 
+        var jobTitle = ParseJobTitle(request.JobTitle);
+        await ValidateOrgLinksAsync(request.OrgUnitId, request.ReportsToEmployeeId, null);
+
         var employeeRole = (await _userRepository.GetAllRolesAsync())
             .FirstOrDefault(r => r.Name == UserRole.Employee.ToString() || r.Name == UserRole.VerificationAgent.ToString())
             ?? throw new InvalidOperationException("Employee role is not configured.");
@@ -106,12 +105,28 @@ public class EmployeeManager : IEmployeeManager
             UserId = user.Id,
             EmployeeCode = request.EmployeeCode,
             Department = request.Department,
+            OrgUnitId = request.OrgUnitId,
+            ReportsToEmployeeId = request.ReportsToEmployeeId,
+            JobTitle = jobTitle,
             JoinedAt = DateTime.UtcNow,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
         _employeeRepository.Add(employee);
         await _unitOfWork.SaveChangesAsync();
+
+        if (request.SetAsOrgUnitHead && request.OrgUnitId.HasValue)
+        {
+            await SetAsHeadAsync(request.OrgUnitId.Value, employee.Id, adminId);
+        }
+
+        await _orgScopeService.AddAuditAsync(adminId, "Employee.Create", "Employee", employee.Id, null, new
+        {
+            employee.OrgUnitId,
+            employee.ReportsToEmployeeId,
+            JobTitle = employee.JobTitle.ToString(),
+            request.SetAsOrgUnitHead
+        });
 
         var created = await _employeeRepository.GetByIdAsync(employee.Id);
         return Map(created!);
@@ -122,13 +137,42 @@ public class EmployeeManager : IEmployeeManager
         var employee = await _employeeRepository.GetByIdAsync(id);
         if (employee?.User == null) return null;
 
+        var jobTitle = ParseJobTitle(request.JobTitle ?? employee.JobTitle.ToString());
+        await ValidateOrgLinksAsync(request.OrgUnitId, request.ReportsToEmployeeId, id);
+
+        var old = new
+        {
+            employee.OrgUnitId,
+            employee.ReportsToEmployeeId,
+            JobTitle = employee.JobTitle.ToString(),
+            employee.IsActive
+        };
+
         employee.User.FullName = request.FullName;
         employee.User.Phone = request.Phone;
         employee.EmployeeCode = request.EmployeeCode;
         employee.Department = request.Department;
+        employee.OrgUnitId = request.OrgUnitId;
+        employee.ReportsToEmployeeId = request.ReportsToEmployeeId;
+        employee.JobTitle = jobTitle;
         employee.IsActive = request.IsActive;
         employee.User.UpdatedAt = DateTime.UtcNow;
         await _unitOfWork.SaveChangesAsync();
+
+        if (request.SetAsOrgUnitHead && request.OrgUnitId.HasValue)
+        {
+            await SetAsHeadAsync(request.OrgUnitId.Value, employee.Id, employee.UserId);
+        }
+
+        await _orgScopeService.AddAuditAsync(employee.UserId, "Employee.UpdateMembership", "Employee", employee.Id, old, new
+        {
+            employee.OrgUnitId,
+            employee.ReportsToEmployeeId,
+            JobTitle = employee.JobTitle.ToString(),
+            employee.IsActive,
+            request.SetAsOrgUnitHead
+        });
+
         return Map(employee);
     }
 
@@ -181,6 +225,62 @@ public class EmployeeManager : IEmployeeManager
         return items;
     }
 
+    private async Task SetAsHeadAsync(Guid orgUnitId, Guid employeeId, Guid actorUserId)
+    {
+        var unit = await _orgUnitRepository.GetByIdAsync(orgUnitId)
+            ?? throw new InvalidOperationException("Org unit not found.");
+        var previousHead = unit.HeadEmployeeId;
+        unit.HeadEmployeeId = employeeId;
+        unit.UpdatedAt = DateTime.UtcNow;
+
+        var employee = await _employeeRepository.GetByIdAsync(employeeId);
+        if (employee != null)
+        {
+            employee.OrgUnitId = orgUnitId;
+            if (employee.JobTitle is not (JobTitle.Head or JobTitle.SubAdmin))
+            {
+                employee.JobTitle = JobTitle.Head;
+            }
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+        await _orgScopeService.AddAuditAsync(actorUserId, "OrgUnit.ChangeHead", "OrgUnit", orgUnitId,
+            new { HeadEmployeeId = previousHead },
+            new { HeadEmployeeId = employeeId });
+    }
+
+    private async Task ValidateOrgLinksAsync(Guid? orgUnitId, Guid? reportsToEmployeeId, Guid? selfId)
+    {
+        if (orgUnitId.HasValue)
+        {
+            var unit = await _orgUnitRepository.GetByIdAsync(orgUnitId.Value);
+            if (unit == null) throw new InvalidOperationException("Org unit not found.");
+        }
+
+        if (reportsToEmployeeId.HasValue)
+        {
+            if (selfId.HasValue && reportsToEmployeeId == selfId)
+            {
+                throw new InvalidOperationException("Employee cannot report to themselves.");
+            }
+
+            var boss = await _employeeRepository.GetByIdAsync(reportsToEmployeeId.Value);
+            if (boss == null) throw new InvalidOperationException("Reports-to employee not found.");
+
+            if (orgUnitId.HasValue && boss.OrgUnitId.HasValue && boss.OrgUnitId != orgUnitId)
+            {
+                throw new InvalidOperationException("Reports-to employee must be in the same org unit.");
+            }
+        }
+    }
+
+    private static JobTitle ParseJobTitle(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return JobTitle.Employee;
+        if (Enum.TryParse<JobTitle>(value, true, out var parsed)) return parsed;
+        throw new InvalidOperationException($"Invalid job title '{value}'.");
+    }
+
     private static EmployeeResponse Map(Data.Entities.Employee employee) =>
         new()
         {
@@ -191,6 +291,12 @@ public class EmployeeManager : IEmployeeManager
             Phone = employee.User?.Phone,
             EmployeeCode = employee.EmployeeCode,
             Department = employee.Department,
+            OrgUnitId = employee.OrgUnitId,
+            OrgUnitName = employee.OrgUnit?.Name,
+            OrgUnitCode = employee.OrgUnit?.Code,
+            ReportsToEmployeeId = employee.ReportsToEmployeeId,
+            ReportsToName = employee.ReportsToEmployee?.User?.FullName,
+            JobTitle = employee.JobTitle.ToString(),
             IsActive = employee.IsActive,
             JoinedAt = employee.JoinedAt,
             CreatedAt = employee.CreatedAt

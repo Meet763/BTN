@@ -19,6 +19,9 @@ namespace BTN.Core.DTOs.Leads
         [StringLength(150)]
         public string? Email { get; set; }
 
+        [StringLength(300)]
+        public string? Address { get; set; }
+
         [StringLength(100)]
         public string? City { get; set; }
 
