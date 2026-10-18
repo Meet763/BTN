@@ -61,7 +61,6 @@ bash deploy/rebuild.sh
 
 Same image generation: Compose reads the Dockerfiles and builds.
 
-<<<<<<< HEAD
 ## GitHub Actions deployment from `alpha`
 
 `.github/workflows/docker.yml` builds the API and web images on GitHub Actions, pushes them to GHCR, then connects to the VM over SSH. Pushes and merges into `alpha` trigger a deployment. The VM pulls the images and restarts Compose without building them locally.
@@ -80,13 +79,6 @@ Before enabling this workflow:
 3. Ensure the PAT owner can read both GHCR packages. The workflow uses `GITHUB_TOKEN` to publish them.
 
 Do not add `.env`, private keys, or tokens to the repository. The VM must have Docker and the `docker-compose` command installed. Initial VM setup also needs the workflow's updated Compose file; clone or pull the latest `alpha` branch before the first Actions deployment.
-=======
-## Future: GitHub push builds images
-
-Already added: `.github/workflows/docker.yml` runs `docker compose build` on push.
-
-To also **publish** images (GHCR/Docker Hub) and pull on the server, add a registry login + `docker push` step later. Until then, building on the server is enough.
->>>>>>> 54d49b9b884bbd1e917038b4774211b3e8111ead
 
 ## Notes
 
