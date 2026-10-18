@@ -1,4 +1,4 @@
-name: Build and deploy BTN
+name: Build and publish BTN
 
 on:
   push:
@@ -50,27 +50,3 @@ jobs:
             ghcr.io/meet763/btn-web:latest
             ghcr.io/meet763/btn-web:${{ github.sha }}
 
-      - name: Configure SSH
-        env:
-          VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
-          VM_KNOWN_HOSTS: ${{ secrets.VM_KNOWN_HOSTS }}
-        run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$VM_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-
-      - name: Deploy on VM
-        env:
-          VM_HOST: ${{ secrets.VM_HOST }}
-          VM_USER: ${{ secrets.VM_USER }}
-          VM_APP_DIR: ${{ secrets.VM_APP_DIR }}
-          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
-        run: |
-          set -euo pipefail
-          printf '%s' "$GHCR_PULL_TOKEN" | ssh -i ~/.ssh/id_ed25519 "$VM_USER@$VM_HOST" \
-            "docker login ghcr.io --username '$GHCR_USERNAME' --password-stdin"
-          printf -v remote_command 'cd %q && git pull --ff-only origin alpha && docker-compose pull && docker-compose up -d --no-build' "$VM_APP_DIR"
-          ssh -i ~/.ssh/id_ed25519 "$VM_USER@$VM_HOST" "$remote_command"

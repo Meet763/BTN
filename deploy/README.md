@@ -61,24 +61,20 @@ bash deploy/rebuild.sh
 
 Same image generation: Compose reads the Dockerfiles and builds.
 
-## GitHub Actions deployment from `alpha`
+## GitHub Actions image builds and automatic VM updates
 
-`.github/workflows/docker.yml` builds the API and web images on GitHub Actions, pushes them to GHCR, then connects to the VM over SSH. Pushes and merges into `alpha` trigger a deployment. The VM pulls the images and restarts Compose without building them locally.
+`.github/workflows/docker.yml` builds the API and web images on GitHub Actions and publishes them to GHCR whenever code is pushed or merged into `alpha`. The VM uses `deploy/pull-and-run.sh` on a timer to pull the latest `alpha` code and images, then restart Compose without building locally. This avoids requiring GitHub-hosted runners to connect inbound to the VM over SSH.
 
-Before enabling this workflow:
+Initial VM setup:
 
-1. Clone the repository's `alpha` branch on the VM and create the server-only `.env` as described above.
-2. Add these Actions repository secrets under **Settings > Secrets and variables > Actions**:
-   - `VM_HOST`: VM external IP address.
-   - `VM_USER`: Linux username used for SSH.
-   - `VM_SSH_KEY`: private SSH key; install its matching public key in the VM user's `~/.ssh/authorized_keys`.
-   - `VM_KNOWN_HOSTS`: verified SSH host key line for the VM.
-   - `VM_APP_DIR`: absolute path to the cloned BTN folder, such as `/home/VM_USER/BTN`.
-   - `GHCR_USERNAME`: GitHub username that owns the pull token.
-   - `GHCR_PULL_TOKEN`: a personal access token (classic) with the `read:packages` scope.
-3. Ensure the PAT owner can read both GHCR packages. The workflow uses `GITHUB_TOKEN` to publish them.
+1. Clone the repository's `alpha` branch and create the server-only `.env` as described above.
+2. Log in to GHCR once from the VM with `docker login ghcr.io -u Meet763`. Use a GitHub personal access token (classic) with `read:packages` when prompted for the password. Never put the token in the repository.
+3. Install and start cron: `sudo apt update && sudo apt install -y cron && sudo systemctl enable --now cron`.
+4. Run `crontab -e` as the BTN Linux user and add a five-minute schedule, replacing the path if your checkout differs:
+   `*/5 * * * * /bin/bash /home/VM_USER/BTN/deploy/pull-and-run.sh >> /home/VM_USER/BTN/deploy/deploy.log 2>&1`
+5. Run the script once manually to deploy the current images: `bash ~/BTN/deploy/pull-and-run.sh`.
 
-Do not add `.env`, private keys, or tokens to the repository. The VM must have Docker and the `docker-compose` command installed. Initial VM setup also needs the workflow's updated Compose file; clone or pull the latest `alpha` branch before the first Actions deployment.
+The timer checks for changes every five minutes. Keep `.env` private and do not run `docker-compose down -v`; that can remove PostgreSQL data.
 
 ## Notes
 
