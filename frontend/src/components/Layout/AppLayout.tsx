@@ -19,6 +19,7 @@ import {
   ApartmentOutlined,
   ClusterOutlined,
   GiftOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -32,7 +33,8 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   const screens = Grid.useBreakpoint();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, companyName, logout } = useAuth();
+  const role = user?.role;
   const { theme, toggleTheme } = useTheme();
   const { token } = antTheme.useToken();
 
@@ -56,13 +58,12 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         </div>
       ),
     },
+    ...(role === 'Customer' ? [{ key: 'settings', icon: <SettingOutlined />, label: <Link to="/customer/settings">Account Settings</Link> }] : []),
     { type: 'divider' as const },
     { key: 'logout', icon: <LogoutOutlined />, label: 'Sign Out', onClick: handleLogout },
   ];
 
   const menuItems: { key: string; icon: React.ReactNode; label: React.ReactNode }[] = [];
-  const role = user?.role;
-
   if (role === 'PlatformOwner') {
     menuItems.push(
       { key: '/dashboard', icon: <DashboardOutlined />, label: <Link to="/dashboard">Dashboard</Link> },
@@ -113,14 +114,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       >
         <div className={`app-sidebar-brand ${collapsed ? 'app-sidebar-brand--collapsed' : ''}`}>
           <div className="app-sidebar-brand-mark" aria-hidden title="Business Trust Network">
-            {collapsed ? 'B' : 'BTN'}
+            {collapsed ? (role === 'Customer' ? (companyName?.charAt(0).toUpperCase() || 'C') : 'B') : (role === 'Customer' ? (companyName || 'Your Company') : 'BTN')}
           </div>
           {!collapsed && (
             <div>
               <Title level={5} className="app-sidebar-brand-text">
-                BTN
+                {role === 'Customer' ? (companyName || 'Your Company') : 'BTN'}
               </Title>
-              <span className="app-sidebar-brand-sub">Business Trust Network</span>
+              <span className="app-sidebar-brand-sub">{role === 'Customer' ? 'Customer workspace' : 'Business Trust Network'}</span>
             </div>
           )}
         </div>

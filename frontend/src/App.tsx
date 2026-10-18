@@ -15,6 +15,7 @@ import { VerificationDetailPage } from './pages/Verification/VerificationDetailP
 import { MarketplacePage } from './pages/Customer/MarketplacePage';
 import { WalletPage } from './pages/Customer/WalletPage';
 import { PurchasesPage } from './pages/Customer/PurchasesPage';
+import { AccountSettingsPage } from './pages/Customer/AccountSettingsPage';
 import { CustomerLeadDetailPage } from './pages/Customer/CustomerLeadDetailPage';
 import { BillingHubPage } from './pages/Billing/BillingHubPage';
 import { InvoicePrintPage } from './pages/Billing/InvoicePrintPage';
@@ -70,6 +71,7 @@ const App: React.FC = () => (
               <Route path="/customer/marketplace" element={withLayout(<RoleGuard allowedRoles={['Customer']}><MarketplacePage /></RoleGuard>)} />
               <Route path="/customer/wallet" element={withLayout(<RoleGuard allowedRoles={['Customer']}><WalletPage /></RoleGuard>)} />
               <Route path="/customer/purchases" element={withLayout(<RoleGuard allowedRoles={['Customer']}><PurchasesPage /></RoleGuard>)} />
+              <Route path="/customer/settings" element={withLayout(<RoleGuard allowedRoles={['Customer']}><AccountSettingsPage /></RoleGuard>)} />
               <Route path="/customer/leads/:id" element={withLayout(<RoleGuard allowedRoles={['Customer']}><CustomerLeadDetailPage /></RoleGuard>)} />
               <Route path="/customer/billing" element={withLayout(<RoleGuard allowedRoles={['Customer']}><BillingHubPage /></RoleGuard>)} />
               <Route path="/customer/billing/invoices/new" element={withLayout(<RoleGuard allowedRoles={['Customer']}><InvoiceCreatePage /></RoleGuard>)} />

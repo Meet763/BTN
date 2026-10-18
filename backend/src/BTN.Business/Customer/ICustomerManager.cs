@@ -15,6 +15,7 @@ public interface ICustomerManager
     Task<PagedResult<CustomerResponse>> GetCustomersAsync(int page, int pageSize);
     Task<CustomerResponse> CreateAsync(CreateCustomerRequest request, Guid adminId);
     Task<CustomerResponse?> GetByUserIdAsync(Guid userId);
+    Task<string?> UpdateCompanyNameAsync(Guid userId, string companyName);
     Task<PagedResult<BTN.Core.DTOs.Leads.LeadResponse>> GetAvailableLeadsAsync(int page, int pageSize, string? search, string? city);
 }
 

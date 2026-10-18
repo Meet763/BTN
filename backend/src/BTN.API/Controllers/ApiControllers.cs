@@ -533,6 +533,41 @@ public class CustomersController : ControllerBase
 
 [Authorize(Roles = "Customer")]
 [ApiController]
+[Route("api/customer-profile")]
+public class CustomerProfileController : ControllerBase
+{
+    private readonly ICustomerManager _customerManager;
+
+    public CustomerProfileController(ICustomerManager customerManager) => _customerManager = customerManager;
+
+    [HttpGet("branding")]
+    public async Task<IActionResult> GetBranding()
+    {
+        var customer = await _customerManager.GetByUserIdAsync(GetUserId());
+        return customer == null
+            ? NotFound(new { success = false, error = "Customer account not found." })
+            : Ok(new { success = true, data = new { companyName = customer.CompanyName } });
+    }
+
+    [HttpPut("branding")]
+    public async Task<IActionResult> UpdateBranding([FromBody] UpdateCustomerBrandingRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.CompanyName))
+        {
+            return BadRequest(new { success = false, error = "Company name is required." });
+        }
+
+        var companyName = await _customerManager.UpdateCompanyNameAsync(GetUserId(), request.CompanyName);
+        return companyName == null
+            ? NotFound(new { success = false, error = "Customer account not found." })
+            : Ok(new { success = true, data = new { companyName } });
+    }
+
+    private Guid GetUserId() => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+}
+
+[Authorize(Roles = "Customer")]
+[ApiController]
 [Route("api/[controller]")]
 public class WalletController : ControllerBase
 {

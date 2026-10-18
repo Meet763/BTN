@@ -103,6 +103,22 @@ public class CustomerManager : ICustomerManager
         return customer == null ? null : Map(customer);
     }
 
+    public async Task<string?> UpdateCompanyNameAsync(Guid userId, string companyName)
+    {
+        var customer = await _customerRepository.GetByUserIdAsync(userId);
+        if (customer == null) return null;
+
+        var normalizedName = companyName.Trim();
+        if (normalizedName.Length is < 1 or > 80)
+        {
+            throw new ArgumentException("Company name must be between 1 and 80 characters.", nameof(companyName));
+        }
+
+        customer.CompanyName = normalizedName;
+        await _unitOfWork.SaveChangesAsync();
+        return normalizedName;
+    }
+
     public async Task<PagedResult<BTN.Core.DTOs.Leads.LeadResponse>> GetAvailableLeadsAsync(int page, int pageSize, string? search, string? city)
     {
         var query = _customerRepository.QueryAvailableLeads();

@@ -1,5 +1,7 @@
 namespace BTN.Core.DTOs.Customer;
 
+using System.ComponentModel.DataAnnotations;
+
 public class CustomerResponse
 {
     public Guid Id { get; set; }
@@ -18,4 +20,11 @@ public class CreateCustomerRequest
     public string Password { get; set; } = string.Empty;
     public string? Phone { get; set; }
     public string? CompanyName { get; set; }
+}
+
+public class UpdateCustomerBrandingRequest
+{
+    [Required]
+    [StringLength(80, MinimumLength = 1)]
+    public string CompanyName { get; set; } = string.Empty;
 }

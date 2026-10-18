@@ -14,6 +14,8 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  companyName: string | null;
+  setCompanyName: (name: string | null) => void;
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<User | null>;
@@ -51,7 +53,26 @@ const userFromToken = (decoded: any): User => ({
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [companyName, setCompanyName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (user?.role !== 'Customer') {
+      setCompanyName(null);
+      return;
+    }
+
+    axiosInstance.get('/api/customer-profile/branding')
+      .then((response) => {
+        if (!cancelled) setCompanyName(response.data.data.companyName || null);
+      })
+      .catch(() => {
+        if (!cancelled) setCompanyName(null);
+      });
+
+    return () => { cancelled = true; };
+  }, [user?.id, user?.role]);
 
   useEffect(() => {
     const initAuth = () => {
@@ -116,6 +137,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
+        companyName,
+        setCompanyName,
         isAuthenticated: !!user,
         loading,
         login,

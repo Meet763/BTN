@@ -186,12 +186,15 @@ body {
 }
 
 .app-sidebar-brand-text {
+  max-width: 160px;
   margin: 0 !important;
   color: var(--sidebar-text-active) !important;
   font-weight: 700 !important;
   letter-spacing: 0.04em;
   line-height: 1.2 !important;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-sidebar-brand-sub {
