@@ -29,7 +29,25 @@ const userFromToken = (decoded) => ({
 });
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [companyName, setCompanyName] = useState(null);
     const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        let cancelled = false;
+        if (user?.role !== 'Customer') {
+            setCompanyName(null);
+            return;
+        }
+        axiosInstance.get('/api/customer-profile/branding')
+            .then((response) => {
+            if (!cancelled)
+                setCompanyName(response.data.data.companyName || null);
+        })
+            .catch(() => {
+            if (!cancelled)
+                setCompanyName(null);
+        });
+        return () => { cancelled = true; };
+    }, [user?.id, user?.role]);
     useEffect(() => {
         const initAuth = () => {
             const token = localStorage.getItem('btn-token');
@@ -92,6 +110,8 @@ export const AuthProvider = ({ children }) => {
     };
     return (_jsx(AuthContext.Provider, { value: {
             user,
+            companyName,
+            setCompanyName,
             isAuthenticated: !!user,
             loading,
             login,

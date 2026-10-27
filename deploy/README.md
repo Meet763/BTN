@@ -1,83 +1,34 @@
 # Deploy BTN with Docker
 
-## What to use
+Read the [BTN Deployment Learning Guide](../docs/DEPLOYMENT_LEARNING_GUIDE.md) for explanations of every command, where to run it, and how the deployment parts fit together.
 
-Use **Docker Compose** on the server. It builds two images (`btn-api`, `btn-web`) and runs Postgres.
+## Current automatic deployment
 
-You do **not** need GitHub for this. Copy the project to the server, then build.
+1. Push or merge a change into GitHub's `alpha` branch.
+2. [`.github/workflows/docker.yml`](../.github/workflows/docker.yml) builds and publishes the API and web images to GHCR.
+3. The VM's cron job runs [`pull-and-run.sh`](pull-and-run.sh) every five minutes. It pulls the `alpha` branch and the published images, then starts Compose with `--no-build`.
 
-```
-Your PC or server folder
-        │
-        ▼
-  docker compose build     ← this creates the images from Dockerfiles
-        │
-        ▼
-  docker compose up -d     ← this starts postgres + api + website
-```
+GitHub Actions does not SSH into the VM in the current setup. The VM initiates its own pulls, so the workflow does not build images on the VM.
 
-Later, if you push to GitHub, `.github/workflows/docker.yml` only **builds** images in CI. It does not deploy by itself. Deploy still happens when you run compose on the server (or add a deploy step later).
+## VM setup checklist
 
-## First time on the server
+- Install Docker and the Compose command used by `pull-and-run.sh` (`docker-compose`).
+- Clone this repository on branch `alpha` into the VM app directory.
+- Create the server-only `.env` from `.env.example`; replace example passwords and secrets with strong, private values. Do not commit `.env`.
+- If the GHCR packages are private, run `docker login ghcr.io -u Meet763` on the VM and enter a GitHub PAT (classic) with `read:packages` at the password prompt.
+- Install and start cron: `sudo apt update`, `sudo apt install -y cron`, then `sudo systemctl enable --now cron`.
+- Run `crontab -e` and add this line, changing the path if the checkout is elsewhere:
 
-1. Install Docker Engine + Docker Compose plugin.
-2. Copy this repo (USB, `scp`, `rsync`, or `git clone` — any method).
-3. Copy env file and edit secrets:
+  ```cron
+  */5 * * * * /bin/bash /home/gru68212/BTN/deploy/pull-and-run.sh >> /home/gru68212/BTN/deploy/deploy.log 2>&1
+  ```
 
-```bash
-cp .env.example .env
-# set POSTGRES_PASSWORD, JWT_SECRET, PUBLIC_URL (your real http/https site URL)
-```
+- Run the script once to deploy immediately: `bash ~/BTN/deploy/pull-and-run.sh`.
 
-4. Build and start:
+## Manual build on the VM
 
-```bash
-# Linux
-bash deploy/rebuild.sh
+For learning or troubleshooting, `docker-compose up -d --build` builds images from the checked-out source and starts the services on the VM. The automatic workflow uses prebuilt GHCR images instead, via `docker-compose pull` followed by `docker-compose up -d --no-build`.
 
-# Windows (PowerShell)
-.\deploy\rebuild.ps1
-```
+PostgreSQL data is stored in the named volume `btn_pgdata`. Avoid `docker-compose down -v`; `-v` removes volumes and can erase the database.
 
-Open `http://SERVER:8080` (or the `WEB_PORT` you set).
-
-Admin login is still the seeded account from the API seeder.
-
-## Update without GitHub
-
-Whenever you change code:
-
-1. Copy the new files onto the server (overwrite the project folder).
-2. Run `bash deploy/rebuild.sh` or `.\deploy\rebuild.ps1`.
-
-That **rebuilds images from the current files** and restarts containers. Postgres data stays in the `btn_pgdata` volume.
-
-## Update with Git on the server
-
-```bash
-git pull
-bash deploy/rebuild.sh
-```
-
-Same image generation: Compose reads the Dockerfiles and builds.
-
-## GitHub Actions image builds and automatic VM updates
-
-`.github/workflows/docker.yml` builds the API and web images on GitHub Actions and publishes them to GHCR whenever code is pushed or merged into `alpha`. The VM uses `deploy/pull-and-run.sh` on a timer to pull the latest `alpha` code and images, then restart Compose without building locally. This avoids requiring GitHub-hosted runners to connect inbound to the VM over SSH.
-
-Initial VM setup:
-
-1. Clone the repository's `alpha` branch and create the server-only `.env` as described above.
-2. Log in to GHCR once from the VM with `docker login ghcr.io -u Meet763`. Use a GitHub personal access token (classic) with `read:packages` when prompted for the password. Never put the token in the repository.
-3. Install and start cron: `sudo apt update && sudo apt install -y cron && sudo systemctl enable --now cron`.
-4. Run `crontab -e` as the BTN Linux user and add a five-minute schedule, replacing the path if your checkout differs:
-   `*/5 * * * * /bin/bash /home/VM_USER/BTN/deploy/pull-and-run.sh >> /home/VM_USER/BTN/deploy/deploy.log 2>&1`
-5. Run the script once manually to deploy the current images: `bash ~/BTN/deploy/pull-and-run.sh`.
-
-The timer checks for changes every five minutes. Keep `.env` private and do not run `docker-compose down -v`; that can remove PostgreSQL data.
-
-## Notes
-
-- Frontend talks to `/api` on the same host (nginx proxies to the API). Empty `VITE_API_URL` at image build time is correct.
-- Set `PUBLIC_URL` in `.env` to the URL people use in the browser (CORS).
-- TLS (https) should sit in front (nginx/Caddy on the host, or a cloud load balancer). This compose stack is HTTP inside Docker.
+The website is published on the host port in `WEB_PORT` (default `8080`). Set `PUBLIC_URL` to the address users open in their browser. The current Compose setup does not configure HTTPS by itself.
